@@ -22,6 +22,7 @@ const CenteredModal = ({
       size={size}
       aria-labelledby='contained-modal-title-vcenter'
       centered
+      onHide={onHide}
     >
       <Modal.Header closeButton={closeButton}>
         <Modal.Title id='contained-modal-title-vcenter'>{title}</Modal.Title>

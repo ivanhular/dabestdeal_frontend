@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
 import Paginate from '../components/Paginate'
+import Image from 'react-bootstrap/Image'
 import {
   listProducts,
   deleteProduct,
@@ -77,7 +78,7 @@ const ProductListScreen = ({ history, match }) => {
           <h1>Products</h1>
         </Col>
         <Col className='text-right'>
-          <Button className='my-3' onClick={createProductHandler}>
+          <Button className='my-3' size='sm' onClick={createProductHandler}>
             <i className='fas fa-plus'></i> Create Product
           </Button>
         </Col>
@@ -95,9 +96,11 @@ const ProductListScreen = ({ history, match }) => {
           <Table striped bordered hover responsive className='table-sm'>
             <thead>
               <tr>
-                <th>ID</th>
+                <th>IMAGE</th>
+                {/* <th>ID</th> */}
                 <th>NAME</th>
                 <th>PRICE</th>
+                <th>SEGMENT</th>
                 <th>CATEGORY</th>
                 <th>BRAND</th>
                 <th></th>
@@ -106,10 +109,23 @@ const ProductListScreen = ({ history, match }) => {
             <tbody>
               {products.map((product) => (
                 <tr key={product._id}>
-                  <td>{product._id}</td>
+                  <td>
+                    {product.images[0] ? (
+                      <Image
+                        src={product.images[0].url}
+                        fluid
+                        rounded
+                        style={{ maxWidth: '50px', maxHeight: '50px' }}
+                      />
+                    ) : (
+                      ''
+                    )}
+                  </td>
+                  {/* <td>{product._id}</td> */}
                   <td>{product.name}</td>
-                  <td>${product.price}</td>
-                  <td>{product.category}</td>
+                  <td>₱{product.price}</td>
+                  <td>{product.segment && product.segment.name}</td>
+                  <td>{product.category && product.category.name}</td>
                   <td>{product.brand}</td>
                   <td>
                     <LinkContainer to={`/admin/product/${product._id}/edit`}>

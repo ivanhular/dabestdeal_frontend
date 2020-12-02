@@ -4,12 +4,13 @@ import { Button, Row, Col, ListGroup, Image, Card } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import Message from '../components/Message'
 import CheckoutSteps from '../components/CheckoutSteps'
-import { createOrder } from '../actions/orderActions'
+import { createOrder, listMyOrders } from '../actions/orderActions'
 import { ORDER_CREATE_RESET } from '../constants/orderConstants'
 
 const PlaceOrderScreen = ({ history }) => {
   const dispatch = useDispatch()
 
+  const { userInfo } = useSelector((state) => state.userLogin)
   const cart = useSelector((state) => state.cart)
 
   //   Calculate prices
@@ -22,11 +23,13 @@ const PlaceOrderScreen = ({ history }) => {
   )
   cart.shippingPrice = addDecimals(cart.itemsPrice > 100 ? 0 : 100)
   cart.taxPrice = addDecimals(Number((0.15 * cart.itemsPrice).toFixed(2)))
-  cart.totalPrice = (
-    Number(cart.itemsPrice) +
-    Number(cart.shippingPrice) +
-    Number(cart.taxPrice)
-  ).toFixed(2)
+  cart.totalPrice = Number(cart.itemsPrice).toFixed(2)
+
+  // cart.totalPrice = (
+  //   Number(cart.itemsPrice) +
+  //   Number(cart.shippingPrice) +
+  //   Number(cart.taxPrice)
+  // ).toFixed(2)
 
   const orderCreate = useSelector((state) => state.orderCreate)
   const { order, success, error } = orderCreate
@@ -42,15 +45,37 @@ const PlaceOrderScreen = ({ history }) => {
   const placeOrderHandler = () => {
     dispatch(
       createOrder({
+        user: userInfo._id,
         orderItems: cart.cartItems,
+        firstName: userInfo.firstName,
+        middleName: userInfo.middleName,
+        lastName: userInfo.lastName,
+        phone: userInfo.phone,
+        email: userInfo.email,
         shippingAddress: cart.shippingAddress,
-        paymentMethod: cart.paymentMethod,
-        itemsPrice: cart.itemsPrice,
+        paymentMethod: cart.paymentMethod.toLowerCase(),
         shippingPrice: cart.shippingPrice,
-        taxPrice: cart.taxPrice,
         totalPrice: cart.totalPrice,
+        orderStatus: 'pending',
+        orderFrom: 'website',
       })
     )
+
+    dispatch(listMyOrders())
+
+    console.log({
+      orderItems: cart.cartItems,
+      firstName: userInfo.firstName,
+      middleName: userInfo.middleName,
+      lastName: userInfo.lastName,
+      phone: userInfo.phone,
+      shippingAddress: cart.shippingAddress,
+      paymentMethod: cart.paymentMethod,
+      shippingPrice: cart.shippingPrice,
+      totalPrice: cart.totalPrice,
+      orderStatus: 'pending',
+      orderFrom: 'website',
+    })
   }
 
   return (
@@ -98,7 +123,9 @@ const PlaceOrderScreen = ({ history }) => {
                           </Link>
                         </Col>
                         <Col md={4}>
-                          {item.qty} x ${item.price} = ${item.qty * item.price}
+                          {item.qty} x <span>&#8369;</span>
+                          {item.price} = <span>&#8369;</span>
+                          {(item.qty * item.price).toFixed(2)}
                         </Col>
                       </Row>
                     </ListGroup.Item>
@@ -127,12 +154,12 @@ const PlaceOrderScreen = ({ history }) => {
                 <Row>
                   <Col>Shipping</Col>
                   <Col>
-                    <span>&#8369;</span>
-                    {cart.shippingPrice}
+                    {cart.shippingPrice > 0 && <span>&#8369;</span>}
+                    {cart.shippingPrice == 0 && 'Free'}
                   </Col>
                 </Row>
               </ListGroup.Item>
-              <ListGroup.Item>
+              {/* <ListGroup.Item>
                 <Row>
                   <Col>Tax</Col>
                   <Col>
@@ -140,19 +167,24 @@ const PlaceOrderScreen = ({ history }) => {
                     {cart.taxPrice}
                   </Col>
                 </Row>
-              </ListGroup.Item>
+              </ListGroup.Item> */}
               <ListGroup.Item>
                 <Row>
-                  <Col>Total</Col>
+                  <Col>
+                    <strong>Total</strong>
+                  </Col>
                   <Col>
                     <span>&#8369;</span>
                     {cart.totalPrice}
                   </Col>
                 </Row>
               </ListGroup.Item>
-              <ListGroup.Item>
-                {error && <Message variant='danger'>{error}</Message>}
-              </ListGroup.Item>
+              {error && (
+                <ListGroup.Item>
+                  <Message variant='danger'>{error}</Message>
+                </ListGroup.Item>
+              )}
+
               <ListGroup.Item>
                 <Button
                   type='button'

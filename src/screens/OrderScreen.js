@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import axios from 'axios'
+import moment from 'moment'
 import { PayPalButton } from 'react-paypal-button-v2'
 import { Link } from 'react-router-dom'
 import { Row, Col, ListGroup, Image, Card, Button } from 'react-bootstrap'
-import { useDispatch, useSelector } from 'react-redux'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
+
 import {
   getOrderDetails,
   payOrder,
@@ -55,7 +57,7 @@ const OrderScreen = ({ match, history }) => {
       const { data: clientId } = await axios.get('/api/config/paypal')
       const script = document.createElement('script')
       script.type = 'text/javascript'
-      script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}`
+      script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=PHP`
       script.async = true
       script.onload = () => {
         setSdkReady(true)
@@ -98,11 +100,11 @@ const OrderScreen = ({ match, history }) => {
             <ListGroup.Item>
               <h2>Shipping</h2>
               <p>
-                <strong>Name: </strong> {order.user.name}
+                <strong>Name: </strong> {`${order.firstName} ${order.lastName}`}
               </p>
               <p>
                 <strong>Email: </strong>{' '}
-                <a href={`mailto:${order.user.email}`}>{order.user.email}</a>
+                <a href={`mailto:${order.email}`}>{order.email}</a>
               </p>
               <p>
                 <strong>Address:</strong>
@@ -112,7 +114,8 @@ const OrderScreen = ({ match, history }) => {
               </p>
               {order.isDelivered ? (
                 <Message variant='success'>
-                  Delivered on {order.deliveredAt}
+                  Delivered on{' '}
+                  {moment(order.deliveredAt).format('MM-DD-YYYY h:mmA')}
                 </Message>
               ) : (
                 <Message variant='danger'>Not Delivered</Message>
@@ -126,9 +129,13 @@ const OrderScreen = ({ match, history }) => {
                 {order.paymentMethod}
               </p>
               {order.isPaid ? (
-                <Message variant='success'>Paid on {order.paidAt}</Message>
+                <Message variant='success'>
+                  Paid on {moment(order.paidAt).format('MM-DD-YYYY h:mmA')}
+                </Message>
               ) : (
-                <Message variant='danger'>Not Paid</Message>
+                order.paymentMethod.toLowerCase() !== 'cash on delivery' && (
+                  <Message variant='danger'>Not Paid</Message>
+                )
               )}
             </ListGroup.Item>
 
@@ -155,7 +162,11 @@ const OrderScreen = ({ match, history }) => {
                           </Link>
                         </Col>
                         <Col md={4}>
-                          {item.qty} x ${item.price} = ${item.qty * item.price}
+                          {item.qty} x{' '}
+                          <span className='currency'>{item.price} </span>{' '}
+                          <span className='currency'>
+                            {item.qty * item.price}{' '}
+                          </span>
                         </Col>
                       </Row>
                     </ListGroup.Item>
@@ -184,12 +195,14 @@ const OrderScreen = ({ match, history }) => {
                 <Row>
                   <Col>Shipping</Col>
                   <Col>
-                    <span>&#8369;</span>
-                    {order.shippingPrice}
+                    {order.shippingPrice > 0 && <span>&#8369;</span>}
+                    {order.shippingPrice == 0
+                      ? 'Free'
+                      : order.shippingPrice.toFixed(2)}
                   </Col>
                 </Row>
               </ListGroup.Item>
-              <ListGroup.Item>
+              {/* <ListGroup.Item>
                 <Row>
                   <Col>Tax</Col>
                   <Col>
@@ -197,7 +210,7 @@ const OrderScreen = ({ match, history }) => {
                     {order.taxPrice}
                   </Col>
                 </Row>
-              </ListGroup.Item>
+              </ListGroup.Item> */}
               <ListGroup.Item>
                 <Row>
                   <Col>Total</Col>
@@ -207,7 +220,7 @@ const OrderScreen = ({ match, history }) => {
                   </Col>
                 </Row>
               </ListGroup.Item>
-              {!order.isPaid && (
+              {!order.isPaid && order.paymentMethod.toLowerCase() === 'paypal' && (
                 <ListGroup.Item>
                   {loadingPay && <Loader />}
                   {!sdkReady ? (
@@ -215,28 +228,40 @@ const OrderScreen = ({ match, history }) => {
                   ) : (
                     <PayPalButton
                       amount={order.totalPrice}
+                      options={{
+                        currency: 'PHP',
+                      }}
                       onSuccess={successPaymentHandler}
                     />
                   )}
                 </ListGroup.Item>
               )}
               {loadingDeliver && <Loader />}
-              {userInfo &&
-                userInfo.isAdmin &&
-                order.isPaid &&
-                !order.isDelivered && (
-                  <ListGroup.Item>
-                    <Button
-                      type='button'
-                      className='btn btn-block'
-                      onClick={deliverHandler}
-                    >
-                      Mark As Delivered
-                    </Button>
-                  </ListGroup.Item>
-                )}
+              {userInfo && userInfo.isAdmin && !order.isDelivered && (
+                <ListGroup.Item>
+                  <Button
+                    type='button'
+                    className='btn btn-block'
+                    onClick={deliverHandler}
+                  >
+                    Mark As Delivered
+                  </Button>
+                </ListGroup.Item>
+              )}
             </ListGroup>
           </Card>
+          {order.orderStatus === 'pending' &&
+            userInfo.role.toLowerCase() === 'client' && (
+              <Card className='order-success__wrapper'>
+                <Card.Body>
+                  {' '}
+                  <Message variant='success'>
+                    Thank you for ordering! <br /> Our agent will contact you
+                    soon!
+                  </Message>
+                </Card.Body>
+              </Card>
+            )}
         </Col>
       </Row>
     </>

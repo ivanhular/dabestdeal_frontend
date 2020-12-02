@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Form, Button, Col } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import FormContainer from '../components/FormContainer'
+import Message from '../components/Message'
 import CheckoutSteps from '../components/CheckoutSteps'
 import { savePaymentMethod } from '../actions/cartActions'
 
@@ -13,15 +14,25 @@ const PaymentScreen = ({ history }) => {
     history.push('/shipping')
   }
 
-  const [paymentMethod, setPaymentMethod] = useState('PayPal')
+  const [paymentMethod, setPaymentMethod] = useState(
+    cart.paymentMethod ? cart.paymentMethod : ''
+  )
+
+  const [error, setError] = useState(false)
 
   const dispatch = useDispatch()
 
   const submitHandler = (e) => {
     e.preventDefault()
-    dispatch(savePaymentMethod(paymentMethod))
-    history.push('/placeorder')
+    if (paymentMethod === '' || Object.keys(paymentMethod).length === 0) {
+      setError(true)
+    } else {
+      dispatch(savePaymentMethod(paymentMethod))
+      history.push('/placeorder')
+    }
   }
+
+  useEffect(() => {})
 
   return (
     <FormContainer>
@@ -37,20 +48,23 @@ const PaymentScreen = ({ history }) => {
               id='PayPal'
               name='paymentMethod'
               value='PayPal'
-              checked
+              checked={paymentMethod === 'PayPal'}
               onChange={(e) => setPaymentMethod(e.target.value)}
             ></Form.Check>
-            {/* <Form.Check
+            <Form.Check
               type='radio'
-              label='Stripe'
-              id='Stripe'
+              label='Cash on Delivery'
+              id='COD'
               name='paymentMethod'
-              value='Stripe'
+              value='Cash on Delivery'
+              checked={paymentMethod === 'Cash on Delivery'}
               onChange={(e) => setPaymentMethod(e.target.value)}
-            ></Form.Check> */}
+            ></Form.Check>
           </Col>
         </Form.Group>
-
+        {error && (
+          <Message variant='danger'>Please Select Payment Method</Message>
+        )}
         <Button type='submit' variant='primary'>
           Continue
         </Button>

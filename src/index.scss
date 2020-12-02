@@ -1,0 +1,254 @@
+main {
+  min-height: 80vh;
+}
+
+h3 {
+  padding: 1rem 0;
+}
+
+h1 {
+  font-size: 1.8rem;
+  padding: 1rem 0;
+}
+
+h2 {
+  font-size: 1.4rem;
+  padding: 0.5rem 0;
+}
+
+.rating span {
+  margin: 0.1rem;
+}
+
+/* carousel */
+.carousel-item-next,
+.carousel-item-prev,
+.carousel-item.active {
+  display: flex;
+}
+.carousel-caption {
+  position: absolute;
+  top: 0;
+}
+
+.carousel-caption h2 {
+  color: #fff;
+}
+
+.carousel img {
+  height: 300px;
+  padding: 30px;
+  margin: 40px;
+  border-radius: 50%;
+}
+.carousel a {
+  margin: 0 auto;
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  margin: 10px 0;
+}
+.separator:before {
+  content: '';
+  flex-grow: 1;
+  border-top: 1px solid #cecece;
+  margin-right: 10px;
+}
+.separator:after {
+  content: '';
+  flex-grow: 1;
+  border-top: 1px solid #cecece;
+  margin-left: 10px;
+}
+
+button.kep-login-facebook.metro {
+  display: block;
+  width: 100%;
+  font-size: 12px;
+  padding: 10px;
+  margin: 0;
+  font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol';
+}
+
+/* Orders */
+.order__wrapper {
+  .actions__wrapper {
+    display: flex;
+    align-items: center;
+
+    .dropdown-toggle {
+      background: none;
+      color: #000;
+      &:after {
+        display: none;
+      }
+    }
+    button {
+      position: relative;
+      padding: 0;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      &.ellipse {
+        font-size: 18px;
+        text-decoration: none;
+      }
+      &:before {
+        position: absolute;
+        z-index: -1;
+        height: 20px;
+        width: 20px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        transform-origin: 50% 50%;
+        content: '';
+        background-color: #e5e9f2;
+        border-radius: 50%;
+        opacity: 0;
+        transition: all 0.3s;
+      }
+      &:hover {
+        &::before {
+          opacity: 1;
+          height: 120%;
+          width: 120%;
+        }
+      }
+    }
+  }
+  &:hover {
+    .quick-btn-wrap {
+      opacity: 1;
+    }
+  }
+  .quick-btn-wrap {
+    opacity: 0;
+    transition: all 400ms;
+  }
+}
+.table-responsive {
+  min-height: 500px;
+}
+.status {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 20px;
+  // padding: 5px 12px 5px 28px;
+  padding: 5px 10px;
+  background: rgba(#000, 0.15);
+  font-size: 12px;
+  text-transform: capitalize;
+  &.pending {
+    background-color: rgba(244, 189, 14, 0.15);
+    color: rgba(244, 189, 14, 1);
+    &::before {
+      background-color: rgba(244, 189, 14, 1);
+    }
+  }
+  &.completed {
+    background-color: rgba(30, 224, 172, 0.15);
+    color: #1ee0ac;
+    &::before {
+      background-color: #1ee0ac;
+    }
+  }
+  &.cancelled {
+    background-color: rgba(248, 28, 83, 0.15);
+    color: rgba(248, 28, 83, 1);
+    &::before {
+      background-color: rgba(248, 28, 83, 1);
+    }
+  }
+  &.to-deliver {
+    background-color: rgba(20, 146, 248, 0.15);
+    color: rgba(20, 146, 248, 1);
+    &::before {
+      background-color: rgba(20, 146, 248, 1);
+    }
+  }
+  &:before {
+    content: '';
+    height: 8px;
+    width: 8px;
+    border-radius: 50%;
+    background: #000;
+    display: inline-block;
+    margin-right: 5px;
+  }
+}
+
+.currency {
+  &:before {
+    content: '\₱';
+  }
+  &.strike {
+    text-decoration: line-through;
+  }
+  &.new {
+    color: red;
+  }
+}
+
+.order-success__wrapper {
+  margin-top: 20px;
+  .alert {
+    margin-bottom: 0;
+  }
+}
+.order-search-btn {
+  position: relative;
+  button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    background: none;
+    color: #000;
+  }
+}
+.search-spinner {
+  position: absolute;
+  right: 20px;
+  height: 20px;
+  width: 20px;
+  top: 32%;
+}
+.search-suggestion {
+  position: absolute;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: scroll;
+  z-index: 1;
+  .result-item {
+    cursor: pointer;
+    .row {
+      align-items: center;
+    }
+  }
+  p {
+    margin-bottom: 0;
+  }
+}
+
+.order-item__qty {
+  display: flex;
+  align-items: center;
+  .currency {
+    margin-right: 5px;
+  }
+  select {
+    margin-left: 5px;
+    margin-right: 5px;
+    padding-left: 20px;
+    width: auto;
+    max-width: 50px;
+    min-width: 50px;
+  }
+}

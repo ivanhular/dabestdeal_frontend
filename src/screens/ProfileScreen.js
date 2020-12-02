@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import moment from 'moment'
 import { Table, Form, Button, Row, Col } from 'react-bootstrap'
 import { LinkContainer } from 'react-router-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
@@ -10,6 +11,7 @@ import { USER_UPDATE_PROFILE_RESET } from '../constants/userConstants'
 
 const ProfileScreen = ({ location, history }) => {
   const [firstName, setFirstName] = useState('')
+  const [middleName, setMiddleName] = useState('')
   const [lastName, setLastName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
@@ -32,21 +34,26 @@ const ProfileScreen = ({ location, history }) => {
   const { loading: loadingOrders, error: errorOrders, orders } = orderListMy
 
   useEffect(() => {
+    dispatch(listMyOrders())
+  }, [dispatch])
+
+  useEffect(() => {
+    // console.log()
     if (!userInfo) {
       history.push('/login')
     } else {
-      if (!user || !user.firstName || success) {
+      if (!userInfo || !userInfo.firstName || success) {
         dispatch({ type: USER_UPDATE_PROFILE_RESET })
         dispatch(getUserDetails('profile'))
-        dispatch(listMyOrders())
       } else {
-        setFirstName(user.firstName)
-        setLastName(user.lastName)
-        setPhone(user.phone)
-        setEmail(user.email)
+        setFirstName(userInfo.firstName)
+        setMiddleName(userInfo.middleName)
+        setLastName(userInfo.lastName)
+        setPhone(userInfo.phone)
+        setEmail(userInfo.email)
       }
     }
-  }, [dispatch, history, userInfo, user, success])
+  }, [dispatch, history, userInfo, success, orders])
 
   // dispatch, history, userInfo, user, success
 
@@ -60,6 +67,7 @@ const ProfileScreen = ({ location, history }) => {
             updateUserProfile({
               id: user._id,
               firstName,
+              middleName,
               lastName,
               phone,
               email,
@@ -70,6 +78,7 @@ const ProfileScreen = ({ location, history }) => {
             updateUserProfile({
               id: user._id,
               firstName,
+              middleName,
               lastName,
               phone,
               email,
@@ -92,7 +101,7 @@ const ProfileScreen = ({ location, history }) => {
         ) : (
           <Form onSubmit={submitHandler}>
             <Form.Group controlId='name'>
-              <Form.Label>Name</Form.Label>
+              <Form.Label>First Name</Form.Label>
               <Form.Control
                 type='Fisrtname'
                 placeholder='Enter First Name'
@@ -100,8 +109,17 @@ const ProfileScreen = ({ location, history }) => {
                 onChange={(e) => setFirstName(e.target.value)}
               ></Form.Control>
             </Form.Group>
+            <Form.Group controlId='middleName'>
+              <Form.Label>Middle Name</Form.Label>
+              <Form.Control
+                type='MiddleName'
+                placeholder='Enter Middle Name'
+                value={middleName}
+                onChange={(e) => setMiddleName(e.target.value)}
+              ></Form.Control>
+            </Form.Group>
             <Form.Group controlId='name'>
-              <Form.Label>Name</Form.Label>
+              <Form.Label>Last Name</Form.Label>
               <Form.Control
                 type='Lastname'
                 placeholder='Enter Last Name'
@@ -109,7 +127,7 @@ const ProfileScreen = ({ location, history }) => {
                 onChange={(e) => setLastName(e.target.value)}
               ></Form.Control>
             </Form.Group>
-            <Form.Group controlId='name'>
+            <Form.Group controlId='phone'>
               <Form.Label>phone</Form.Label>
               <Form.Control
                 type='tel'
@@ -168,6 +186,7 @@ const ProfileScreen = ({ location, history }) => {
               <tr>
                 <th>ID</th>
                 <th>DATE</th>
+                <th>PURCHASED</th>
                 <th>TOTAL</th>
                 <th>PAID</th>
                 <th>DELIVERED</th>
@@ -178,8 +197,24 @@ const ProfileScreen = ({ location, history }) => {
               {orders.map((order) => (
                 <tr key={order._id}>
                   <td>{order._id}</td>
-                  <td>{order.createdAt.substring(0, 10)}</td>
-                  <td>{order.totalPrice}</td>
+                  <td>{moment(order.createdAt).format('MM-DD-YYYY h:mmA')}</td>
+                  <td>
+                    {`${order.orderItems.reduce(
+                      (acc, item) => acc + item.qty,
+                      0
+                    )} item${
+                      order.orderItems.reduce(
+                        (acc, item) => acc + item.qty,
+                        0
+                      ) > 1
+                        ? 's'
+                        : ''
+                    }`}
+                  </td>
+                  <td>
+                    {' '}
+                    <span className='currency'>{order.totalPrice}</span>
+                  </td>
                   <td>
                     {order.isPaid ? (
                       order.paidAt.substring(0, 10)

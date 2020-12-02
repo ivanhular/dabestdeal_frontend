@@ -13,12 +13,15 @@ const ShippingScreen = ({ history }) => {
   const [city, setCity] = useState(shippingAddress.city)
   const [postalCode, setPostalCode] = useState(shippingAddress.postalCode)
   const [country, setCountry] = useState(shippingAddress.country)
+  const [landMark, setlandMark] = useState(shippingAddress.landMark)
 
   const dispatch = useDispatch()
 
   const submitHandler = (e) => {
     e.preventDefault()
-    dispatch(saveShippingAddress({ address, city, postalCode, country }))
+    dispatch(
+      saveShippingAddress({ address, city, postalCode, country, landMark })
+    )
     history.push('/payment')
   }
 
@@ -55,7 +58,6 @@ const ShippingScreen = ({ history }) => {
             type='text'
             placeholder='Enter postal code'
             value={postalCode}
-            required
             onChange={(e) => setPostalCode(e.target.value)}
           ></Form.Control>
         </Form.Group>
@@ -66,8 +68,18 @@ const ShippingScreen = ({ history }) => {
             type='text'
             placeholder='Enter country'
             value={country}
-            required
             onChange={(e) => setCountry(e.target.value)}
+          ></Form.Control>
+        </Form.Group>
+
+        <Form.Group controlId='landmark'>
+          <Form.Label>Nearest Landmark</Form.Label>
+          <Form.Control
+            as='textarea'
+            placeholder='Nearest Landmark'
+            value={landMark}
+            required
+            onChange={(e) => setlandMark(e.target.value)}
           ></Form.Control>
         </Form.Group>
 

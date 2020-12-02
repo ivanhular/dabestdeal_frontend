@@ -11,8 +11,11 @@ import { USER_UPDATE_RESET } from '../constants/userConstants'
 const UserEditScreen = ({ match, history }) => {
   const userId = match.params.id
 
-  const [name, setName] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
+  const [role, setRole] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
 
   const dispatch = useDispatch()
@@ -32,11 +35,14 @@ const UserEditScreen = ({ match, history }) => {
       dispatch({ type: USER_UPDATE_RESET })
       history.push('/admin/userlist')
     } else {
-      if (!user.name || user._id !== userId) {
+      if (!user || user._id !== userId) {
         dispatch(getUserDetails(userId))
       } else {
-        setName(user.name)
+        setFirstName(user.firstName)
+        setLastName(user.lastName)
+        setPhone(user.phone)
         setEmail(user.email)
+        setRole(user.role)
         setIsAdmin(user.isAdmin)
       }
     }
@@ -44,7 +50,17 @@ const UserEditScreen = ({ match, history }) => {
 
   const submitHandler = (e) => {
     e.preventDefault()
-    dispatch(updateUser({ _id: userId, name, email, isAdmin }))
+    dispatch(
+      updateUser({
+        _id: userId,
+        firstName,
+        lastName,
+        phone,
+        email,
+        role,
+        isAdmin,
+      })
+    )
   }
 
   return (
@@ -62,13 +78,32 @@ const UserEditScreen = ({ match, history }) => {
           <Message variant='danger'>{error}</Message>
         ) : (
           <Form onSubmit={submitHandler}>
-            <Form.Group controlId='name'>
-              <Form.Label>Name</Form.Label>
+            <Form.Group controlId='firstName'>
+              <Form.Label>First Name</Form.Label>
               <Form.Control
-                type='name'
-                placeholder='Enter name'
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                type='firstName'
+                placeholder='Enter First Name'
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              ></Form.Control>
+            </Form.Group>
+            <Form.Group controlId='lastName'>
+              <Form.Label>Last Name</Form.Label>
+              <Form.Control
+                type='lastName'
+                placeholder='Enter Last Name'
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              ></Form.Control>
+            </Form.Group>
+
+            <Form.Group controlId='lastName'>
+              <Form.Label>Phone</Form.Label>
+              <Form.Control
+                type='lastName'
+                placeholder='Enter Last Name'
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
               ></Form.Control>
             </Form.Group>
 
@@ -80,6 +115,19 @@ const UserEditScreen = ({ match, history }) => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               ></Form.Control>
+            </Form.Group>
+
+            <Form.Group controlId='role'>
+              <Form.Label>Role</Form.Label>
+              <Form.Control
+                as='select'
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+              >
+                <option>Admin</option>
+                <option>Editor</option>
+                <option>Client</option>
+              </Form.Control>
             </Form.Group>
 
             <Form.Group controlId='isadmin'>

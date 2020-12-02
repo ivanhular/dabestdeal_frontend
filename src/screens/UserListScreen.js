@@ -44,7 +44,8 @@ const UserListScreen = ({ history }) => {
           <thead>
             <tr>
               <th>ID</th>
-              <th>NAME</th>
+              <th>FIRST NAME</th>
+              <th>LAST NAME</th>
               <th>EMAIL</th>
               <th>ADMIN</th>
               <th></th>
@@ -54,7 +55,8 @@ const UserListScreen = ({ history }) => {
             {users.map((user) => (
               <tr key={user._id}>
                 <td>{user._id}</td>
-                <td>{user.name}</td>
+                <td>{user.firstName && user.firstName}</td>
+                <td>{user.lastName && user.lastName}</td>
                 <td>
                   <a href={`mailto:${user.email}`}>{user.email}</a>
                 </td>

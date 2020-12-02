@@ -6,6 +6,7 @@ import {
   CART_CLEAR_ITEMS,
 } from '../constants/cartConstants'
 
+//the state here gets the intiail value of its assign reducers from the store
 export const cartReducer = (
   state = { cartItems: [], shippingAddress: {} },
   action
@@ -14,19 +15,21 @@ export const cartReducer = (
     case CART_ADD_ITEM:
       const item = action.payload
 
-      const existItem = state.cartItems.find((x) => x.product === item.product)
+      // console.log(state)
+
+      const existItem = state.cartItems.find((x) => x.product === item.product) //product is product._id field
 
       if (existItem) {
         return {
           ...state,
-          cartItems: state.cartItems.map((x) =>
-            x.product === existItem.product ? item : x
+          cartItems: state.cartItems.map(
+            (x) => (x.product === existItem.product ? item : x) //if exist on cart replace with new data
           ),
         }
       } else {
         return {
           ...state,
-          cartItems: [...state.cartItems, item],
+          cartItems: [...state.cartItems, item], //if not add to list of items to cart
         }
       }
     case CART_REMOVE_ITEM:

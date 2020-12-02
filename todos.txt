@@ -1,0 +1,7 @@
+Layout Revision (product list , product single , header , footer)
+Add zoom and carousel to single product page images
+Add Sales Price (price / original price * 100)  - 100
+Count in stock dont allow negative values.
+Reduce stock when delivered
+Revise Reviews proccess must enable reviews after purchased
+Add Product Filters on home page

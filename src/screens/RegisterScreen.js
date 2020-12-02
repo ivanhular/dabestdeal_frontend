@@ -8,7 +8,9 @@ import FormContainer from '../components/FormContainer'
 import { register } from '../actions/userActions'
 
 const RegisterScreen = ({ location, history }) => {
-  const [name, setName] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [middleName, setMiddleName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
@@ -33,7 +35,8 @@ const RegisterScreen = ({ location, history }) => {
     if (password !== confirmPassword) {
       setMessage('Passwords do not match')
     } else {
-      dispatch(register(name, email, password))
+      setMessage('')
+      dispatch(register({ firstName, lastName, phone, email, password }))
     }
   }
 
@@ -44,13 +47,31 @@ const RegisterScreen = ({ location, history }) => {
       {error && <Message variant='danger'>{error}</Message>}
       {loading && <Loader />}
       <Form onSubmit={submitHandler}>
-        <Form.Group controlId='name'>
-          <Form.Label>Name</Form.Label>
+        <Form.Group controlId='first'>
+          <Form.Label>First Name</Form.Label>
           <Form.Control
-            type='name'
-            placeholder='Enter name'
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            type='firstname'
+            placeholder='Enter First name'
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+          ></Form.Control>
+        </Form.Group>
+        <Form.Group controlId='first'>
+          <Form.Label>Middle Name</Form.Label>
+          <Form.Control
+            type='middlename'
+            placeholder='Enter Middle name'
+            value={middleName}
+            onChange={(e) => setMiddleName(e.target.value)}
+          ></Form.Control>
+        </Form.Group>
+        <Form.Group controlId='lastname'>
+          <Form.Label>Last Name</Form.Label>
+          <Form.Control
+            type='lastname'
+            placeholder='Enter Last name'
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
           ></Form.Control>
         </Form.Group>
 

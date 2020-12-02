@@ -6,6 +6,7 @@ import {
   PRODUCT_DETAILS_REQUEST,
   PRODUCT_DETAILS_SUCCESS,
   PRODUCT_DETAILS_FAIL,
+  PRODUCT_DETAILS_RESET,
   PRODUCT_DELETE_SUCCESS,
   PRODUCT_DELETE_REQUEST,
   PRODUCT_DELETE_FAIL,
@@ -160,6 +161,8 @@ export const updateProduct = (product) => async (dispatch, getState) => {
       },
     }
 
+    console.log(product)
+
     const { data } = await axios.put(
       `/api/products/${product._id}`,
       product,
@@ -170,6 +173,10 @@ export const updateProduct = (product) => async (dispatch, getState) => {
       type: PRODUCT_UPDATE_SUCCESS,
       payload: data,
     })
+
+    // dispatch({
+    //   type: PRODUCT_DETAILS_RESET,
+    // })
   } catch (error) {
     const message =
       error.response && error.response.data.message
