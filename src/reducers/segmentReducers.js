@@ -10,7 +10,7 @@ import {
 } from '../constants/segmentConstants'
 
 export const segmentListReducer = (
-  state = { loading: false, segments: {} },
+  state = { loading: false, segments: [] },
   { type, payload }
 ) => {
   switch (type) {

@@ -13,7 +13,7 @@ import {
 } from '../constants/categoryConstants'
 
 export const categoryListReducer = (
-  state = { loading: false, categories: {} },
+  state = { loading: false, categories: [] },
   { type, payload }
 ) => {
   switch (type) {

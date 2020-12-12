@@ -2,6 +2,10 @@ import {
   ORDER_CREATE_REQUEST,
   ORDER_CREATE_SUCCESS,
   ORDER_CREATE_FAIL,
+  ORDER_UPDATE_REQUEST,
+  ORDER_UPDATE_SUCCESS,
+  ORDER_UPDATE_FAIL,
+  ORDER_UPDATE_RESET,
   ORDER_DETAILS_REQUEST,
   ORDER_DETAILS_SUCCESS,
   ORDER_DETAILS_FAIL,
@@ -41,6 +45,30 @@ export const orderCreateReducer = (state = {}, action) => {
         error: action.payload,
       }
     case ORDER_CREATE_RESET:
+      return {}
+    default:
+      return state
+  }
+}
+
+export const orderUpdateReducer = (state = {}, action) => {
+  switch (action.type) {
+    case ORDER_UPDATE_REQUEST:
+      return {
+        loading: true,
+      }
+    case ORDER_UPDATE_SUCCESS:
+      return {
+        loading: false,
+        success: true,
+        order: action.payload,
+      }
+    case ORDER_UPDATE_FAIL:
+      return {
+        loading: false,
+        error: action.payload,
+      }
+    case ORDER_UPDATE_RESET:
       return {}
     default:
       return state

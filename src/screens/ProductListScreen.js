@@ -112,7 +112,14 @@ const ProductListScreen = ({ history, match }) => {
                   <td>
                     {product.images[0] ? (
                       <Image
-                        src={product.images[0].url}
+                        src={
+                          product.images.find((image) => image.isFeaturedImage)
+                            ? product.images.find(
+                                (image) => image.isFeaturedImage
+                              ).url
+                            : 'https://via.placeholder.com/500x500?text=noimage'
+                        }
+                        // src={product.images[0].url}
                         fluid
                         rounded
                         style={{ maxWidth: '50px', maxHeight: '50px' }}

@@ -74,7 +74,10 @@ button.kep-login-facebook.metro {
     Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji',
     'Segoe UI Emoji', 'Segoe UI Symbol';
 }
-
+/*Overrides*/
+.container {
+  max-width: 1600px;
+}
 /* Orders */
 .order__wrapper {
   .actions__wrapper {
@@ -153,6 +156,13 @@ button.kep-login-facebook.metro {
       background-color: rgba(244, 189, 14, 1);
     }
   }
+  &.processing {
+    background-color: rgb(255, 194, 60);
+    color: #ffffff;
+    &::before {
+      background-color: #fff;
+    }
+  }
   &.completed {
     background-color: rgba(30, 224, 172, 0.15);
     color: #1ee0ac;
@@ -207,6 +217,7 @@ button.kep-login-facebook.metro {
   position: relative;
   button {
     position: absolute;
+    height: 100%;
     right: 0;
     top: 0;
     background: none;
@@ -259,4 +270,60 @@ button.kep-login-facebook.metro {
 
 strong {
   font-weight: 700;
+}
+.product-image {
+  // border-radius: 10px;
+  // padding: 10px;
+  &:before {
+    content: '';
+    background: rgba(#000, 0.5);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    opacity: 0;
+  }
+  &:hover {
+    // border: 1px solid rgb(30, 105, 1);
+    &::before {
+      opacity: 1;
+      transition: all 400ms;
+    }
+    .product-image__btm--actions {
+      opacity: 1;
+      transition: all 400ms;
+    }
+    button {
+      background: none;
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+}
+.product-image--actions {
+  position: absolute;
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  button {
+    line-height: 1;
+    padding: 0;
+
+    // height: 10px;
+    background: none;
+    color: #fff;
+    opacity: 0;
+  }
+}
+.product-image__btm--actions {
+  position: absolute;
+  bottom: 0;
+  z-index: 3;
+  color: #fff;
+  opacity: 0;
 }

@@ -8,7 +8,7 @@ const Product = ({ product }) => {
     <Card className='my-3 p-3 rounded'>
       <Link to={`/product/${product._id}`}>
         <Card.Img
-          src={product.images.find((image) => image.isfeaturedImage).url}
+          src={product.images.find((image) => image.isFeaturedImage).url}
           variant='top'
         />
       </Link>

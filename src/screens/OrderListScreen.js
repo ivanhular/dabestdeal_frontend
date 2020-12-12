@@ -14,6 +14,8 @@ import {
   ListGroup,
   Image,
   Modal,
+  Badge,
+  Toast,
 } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import Message from '../components/Message'
@@ -22,8 +24,8 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip'
 import Loader from '../components/Loader'
 import Fade from 'react-bootstrap/Fade'
-import { listOrders, createOrder } from '../actions/orderActions'
-import { listProducts } from '../actions/productActions'
+import { listOrders, createOrder, updateOrder } from '../actions/orderActions'
+import { listProducts, updateProduct } from '../actions/productActions'
 import { MODAL_OPEN, MODAL_CLOSE } from '../constants/appConstants'
 import { PRODUCT_LIST_RESET } from '../constants/productConstants'
 
@@ -46,6 +48,14 @@ const OrderListScreen = ({ history }) => {
     success: orderCreateSuccess,
     error: orderCreateError,
   } = orderCreate
+
+  const orderUpdate = useSelector((state) => state.orderUpdate)
+  const {
+    order: orderUpdated,
+    loading: orderUpdateLoading,
+    success: orderUpdateSuccess,
+    error: orderUpdateError,
+  } = orderUpdate
 
   /*** ORDER FORM ***/
   const searchInput = useRef(null)
@@ -71,9 +81,15 @@ const OrderListScreen = ({ history }) => {
   const [discountError, setDiscountError] = useState(false)
   const [totalPrice, setTotalPrice] = useState(0)
   const orderItemsTotalPrice = Math.round(
-    orderItems.reduce((acc, item) => acc + item.price * item.qty, 0)
+    orderItems.reduce(
+      (acc, item) =>
+        item.countInStock > 0 ? acc + item.price * item.qty : acc + 0,
+      0
+    )
   ).toFixed(2)
   const [proofOfSale, setProofOfSale] = useState('')
+  const [proofOfSaleError, setProofOfSaleError] = useState('')
+  const [isEditView, setIsEditView] = useState(false)
   /*** ORDER FORM ***/
 
   /*** VIEW ORDER FORM ***/
@@ -81,7 +97,42 @@ const OrderListScreen = ({ history }) => {
   const [orderViewDetail, setOrderViewDetail] = useState({})
   /*** VIEW ORDER FORM ***/
 
+  /*** NOTIFICATION ***/
+  const [showNotif, setShowNotif] = useState(false)
+  const [toastMessage, setToastMessage] = useState('')
+  /*** NOTIFICATION ***/
+
+  /*** COURIER INFO FORM ***/
+  const [shippingModal, setShippingModal] = useState(false)
+  const [courierName, setCourierName] = useState('')
+  const [courierOrderNo, setCourierOrderNo] = useState('')
+  const [courierTrackingNo, setCourierTrackingNo] = useState('')
+  const [courierRate, setCourierRate] = useState('')
+  const [processingRemarks, setProcessingRemarks] = useState('')
+  const [trackingError, setTrackingError] = useState(false)
+  const [trackingErrorMessage, setTrackingErrorMessage] = useState('')
+  /*** COURIER INFO FORM ***/
+
+  /*** CANCELLATION FORM ***/
+  const [cancellationModal, setCancellationModal] = useState(false)
+  const [cancellationRemarks, setCancellationRemarks] = useState('')
+
   useEffect(() => {
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && e.target.nodeName === 'INPUT') {
+        e.preventDefault()
+        return false
+      }
+    })
+    if (orderUpdateSuccess) {
+      setOrderViewDetail(orderUpdated)
+      dispatch(listOrders())
+      dispatch({ type: MODAL_CLOSE })
+      setOrderViewModal(false)
+      setOrderViewDetail({})
+      setToastMessage('Order Updated Successfully')
+      setShowNotif(true)
+    }
     if (orderCreateSuccess) {
       setSearchResult([])
       setOrderItems([])
@@ -102,7 +153,7 @@ const OrderListScreen = ({ history }) => {
       dispatch(listOrders())
       dispatch({ type: MODAL_CLOSE })
     }
-  }, [orderCreateSuccess, dispatch])
+  }, [orderUpdateSuccess, orderUpdated, orderCreateSuccess, dispatch])
 
   useEffect(() => {
     const maxDiscount = 20 //%
@@ -147,9 +198,28 @@ const OrderListScreen = ({ history }) => {
   }, [dispatch, history, userInfo])
 
   const addOrderHandler = () => {
+    resetState()
     dispatch({ type: MODAL_OPEN })
   }
 
+  const resetState = () => {
+    setSearchResult([])
+    setOrderItems([])
+    setFirstName('')
+    setMiddleName('')
+    setLastName('')
+    setPhone('')
+    setAddress('')
+    setCity('')
+    setEmail('')
+    setPostalCode('')
+    setLandMark('')
+    setOrderRemarks('')
+    setPaymentMethod('')
+    setShippingPrice(0)
+    setDiscount('')
+    setTotalPrice(0)
+  }
   const searchInputHandler = (e) => {
     if (e.key === 'Enter') {
       buttonRef.current.click()
@@ -204,74 +274,130 @@ const OrderListScreen = ({ history }) => {
   const orderFormSubmitHandler = async (e) => {
     e.preventDefault()
     const formData = new FormData()
-    formData.append('image', proofOfSale)
-    formData.append('folder', 'POS')
-    formData.append('order', true)
-    // console.log(formData.getAll('folder'))
+    // const data = {
+    //   folder: 'pos',
+    //   modelName: 'order',
+    // }
+    // formData.append('body', JSON.stringify(data))
+    formData.append('folder', 'pos')
+    formData.append('modelName', 'order')
+    formData.append('images', proofOfSale)
 
-    if (orderItems.length > 0) {
+    if (orderItems.length > 0 && totalPrice > 0) {
       const config = {
-        header: {
+        headers: {
+          Accept: 'application/json',
           'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${userInfo.token}`,
         },
       }
 
       try {
-        await axios.post('/api/upload', formData, config)
+        setProofOfSaleError('')
+        if (!isEditView) {
+          //Create order from sales
+          const { data: url } = await axios.post(
+            '/api/upload',
+            formData,
+            config
+          )
+          dispatch(
+            createOrder({
+              salesPerson: userInfo._id,
+              orderItems,
+              firstName,
+              middleName,
+              lastName,
+              phone,
+              email,
+              shippingAddress: { address, city, postalCode, country, landMark },
+              paymentMethod,
+              shippingPrice,
+              totalPrice,
+              discount,
+              orderStatus: 'processing',
+              orderFrom: 'facebook',
+              orderRemarks,
+              proofOfSale: url[0],
+            })
+          )
+        } else {
+          if (orderViewDetail.orderFrom !== 'website') {
+            //update order from sales
+            const { data: url } = await axios.post(
+              '/api/upload',
+              formData,
+              config
+            )
+            dispatch(
+              updateOrder(orderViewDetail._id, {
+                salesPerson: userInfo._id,
+                orderItems,
+                firstName,
+                middleName,
+                lastName,
+                phone,
+                email,
+                shippingAddress: {
+                  address,
+                  city,
+                  postalCode,
+                  country,
+                  landMark,
+                },
+                paymentMethod,
+                shippingPrice,
+                totalPrice,
+                discount,
+                orderStatus: 'processing',
+                orderFrom: 'facebook',
+                orderRemarks,
+                proofOfSale: url[0],
+              })
+            )
+          } else {
+            //update order from website
+            dispatch(
+              updateOrder(orderViewDetail._id, {
+                salesPerson: userInfo._id,
+                orderItems,
+                firstName,
+                middleName,
+                lastName,
+                phone,
+                email,
+                shippingAddress: {
+                  address,
+                  city,
+                  postalCode,
+                  country,
+                  landMark,
+                },
+                paymentMethod,
+                shippingPrice,
+                totalPrice,
+                discount,
+                orderStatus: orderViewDetail.orderStatus,
+                orderFrom: orderViewDetail.orderFrom,
+                orderRemarks,
+              })
+            )
+          }
+
+          setIsEditView(false)
+        }
       } catch (error) {
-        console.log(error)
+        setProofOfSaleError(
+          error && error.response && error.response.data.message
+        )
       }
-      // dispatch(
-      //   createOrder({
-      //     salesPerson: userInfo._id,
-      //     orderItems,
-      //     firstName,
-      //     middleName,
-      //     lastName,
-      //     phone,
-      //     email,
-      //     shippingAddress: { address, city, postalCode, country, landMark },
-      //     paymentMethod,
-      //     shippingPrice,
-      //     totalPrice,
-      //     discount,
-      //     orderStatus: 'pending',
-      //     orderFrom: 'facebook',
-      //     orderRemarks,
-      //     proofOfSale,
-      //   })
-      // )
-      console.log({
-        salesPerson: userInfo._id,
-        orderItems,
-        firstName,
-        middleName,
-        lastName,
-        phone,
-        email,
-        shippingAddress: { address, city, postalCode, country, landMark },
-        paymentMethod,
-        shippingPrice,
-        totalPrice,
-        discount,
-        orderStatus: 'processing',
-        orderFrom: 'facebook',
-        orderRemarks,
-        // proofOfSale: data,
-      })
     } else {
       setIsemptyOrder(true)
     }
   }
 
   const uploadProofOfSaleHandler = (e) => {
-    // const file = e.target.files[0]
-    // const formData = new FormData()
-    // formData.append('image', file)
     setProofOfSale(e.target.files[0])
-    console.log('trigger')
-
-    // console.log(formData.getAll('image'))
   }
 
   const orderViewHandler = (id) => {
@@ -280,8 +406,269 @@ const OrderListScreen = ({ history }) => {
     setOrderViewModal(true)
   }
 
+  const editOrderHandler = async (e) => {
+    console.log(orderViewDetail)
+
+    //Update countInStock in realtime
+    const updatedViewDetailWithStock = await Promise.all(
+      orderViewDetail.orderItems.map(async (item) => {
+        const {
+          data: { countInStock },
+        } = await axios.get(`/api/products/${item.product}`)
+
+        return {
+          ...item,
+          countInStock,
+        }
+      })
+    )
+
+    setSearchResult([])
+    setOrderItems(updatedViewDetailWithStock)
+    setFirstName(orderViewDetail.firstName)
+    setMiddleName(orderViewDetail.middleName)
+    setLastName(orderViewDetail.lastName)
+    setPhone(orderViewDetail.phone)
+    setAddress(orderViewDetail.shippingAddress.address)
+    setCity(orderViewDetail.shippingAddress.city)
+    setEmail(orderViewDetail.email)
+    setPostalCode(orderViewDetail.shippingAddress.postalCode)
+    setLandMark(orderViewDetail.shippingAddress.landMark)
+    setOrderRemarks(orderViewDetail.orderRemarks)
+    setPaymentMethod(orderViewDetail.paymentMethod)
+    setShippingPrice(0)
+    setDiscount(orderViewDetail.discount)
+    setTotalPrice(orderViewDetail.totalPrice.toFixed(2))
+    setIsEditView(true)
+    dispatch({ type: MODAL_OPEN })
+  }
+
+  const confirmHandler = () => {
+    dispatch(
+      updateOrder(orderViewDetail._id, {
+        orderStatus: 'processing',
+        confirmedBy: userInfo._id,
+        confirmedAt: Date.now(),
+      })
+    )
+  }
+
+  const sendForShippingHandler = () => {
+    setShippingModal(true)
+  }
+
+  const courierFormSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      if (isNaN(courierTrackingNo)) {
+        setTrackingErrorMessage('Invalid Tracking #')
+        setTrackingError(true)
+        return true
+      }
+      const { status } = await axios.get(
+        `/api/orders/tracking/${courierTrackingNo}`
+      )
+      if (status === 200) {
+        dispatch(
+          updateOrder(orderViewDetail._id, {
+            orderStatus: 'to deliver',
+            processedAt: Date.now(),
+            processedBy: userInfo._id,
+            processingRemarks,
+            courier: {
+              name: courierName,
+              orderNo: courierOrderNo,
+              trackingNo: courierTrackingNo,
+              rate: courierRate,
+            },
+          })
+        )
+        setShippingModal(false)
+        setTrackingErrorMessage('')
+        setTrackingError(false)
+      }
+    } catch (error) {
+      setTrackingErrorMessage(error.response.message)
+      setTrackingError(true)
+    }
+  }
+
+  const cancelHandler = async (e) => {
+    setCancellationModal(true)
+  }
+
+  const cancellationSubmit = (e) => {
+    e.preventDefault()
+    dispatch(
+      updateOrder(orderViewDetail._id, {
+        orderStatus: 'cancelled',
+        cancellationRemarks,
+      })
+    )
+    setCancellationRemarks('')
+    setCancellationModal(false)
+  }
   return (
     <>
+      <Row className='align-items-center'>
+        <Col>
+          <h1>Orders</h1>
+        </Col>
+        <Col className='text-right'>
+          <Button className='my-2' size='sm' onClick={addOrderHandler}>
+            <i className='fas fa-plus'></i> Add Order
+          </Button>
+        </Col>
+      </Row>
+      {loading ? (
+        <Loader />
+      ) : error ? (
+        <Message variant='danger'>{error}</Message>
+      ) : (
+        <Table
+          striped
+          bordered
+          hover
+          responsive
+          className='table-sm order-table'
+        >
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>CUSTOMER NAME</th>
+              <th>PHONE</th>
+              <th>STATUS</th>
+              <th>DATE</th>
+              <th>TOTAL</th>
+              {/* <th>PAID</th>
+              <th>DELIVERED</th> */}
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map((order) => (
+              <tr key={order._id} className='order__wrapper'>
+                <td>
+                  <Badge pill variant='info' style={{ marginRight: '5px' }}>
+                    {order.orderFrom}
+                  </Badge>
+                  {order._id}
+                </td>
+                <td>{`${order.firstName} ${order.lastName}`}</td>
+                <td>{order.phone}</td>
+                <td>
+                  <span
+                    className={`status ${
+                      order.orderStatus && order.orderStatus.replace(/\s/g, '-')
+                    }`}
+                  >
+                    {order.orderStatus
+                      ? order.orderStatus.toLowerCase() === 'processing' &&
+                        order.courier.name === undefined
+                        ? 'Ready to process'
+                        : order.orderStatus
+                      : 'no status'}
+                  </span>
+                </td>
+                <td>{moment(order.createdAt).format('MM-DD-YYYY h:mmA')}</td>
+                <td>
+                  <span className='currency'>
+                    {order.totalPrice.toFixed(2)}
+                  </span>
+                </td>
+                {/* <td>
+                  {order.isPaid ? (
+                    order.paidAt.substring(0, 10)
+                  ) : (
+                    <i className='fas fa-times' style={{ color: 'red' }}></i>
+                  )}
+                </td> */}
+                {/* <td>
+                  {order.isDelivered ? (
+                    order.deliveredAt.substring(0, 10)
+                  ) : (
+                    <i className='fas fa-times' style={{ color: 'red' }}></i>
+                  )}
+                </td> */}
+                <td>
+                  <div className='actions__wrapper'>
+                    <div className='quick-btn-wrap'>
+                      <OverlayTrigger
+                        overlay={
+                          <Tooltip id='tooltip-disabled'>View Order</Tooltip>
+                        }
+                      >
+                        {/* <LinkContainer to={`/order/${order._id}`}> */}
+                        <Button
+                          variant='link'
+                          size='sm'
+                          onClick={() => {
+                            orderViewHandler(order._id)
+                          }}
+                        >
+                          <i className='fa fa-eye' aria-hidden='true'></i>
+                        </Button>
+                        {/* </LinkContainer> */}
+                      </OverlayTrigger>
+                    </div>
+
+                    <Dropdown>
+                      <Dropdown.Toggle id='dropdown-basic'>
+                        <i className='fas fa-ellipsis-h'></i>
+                      </Dropdown.Toggle>
+
+                      <Dropdown.Menu>
+                        <Dropdown.Item href='#/action-2'>
+                          <i className='far fa-eye'></i> Order Details
+                        </Dropdown.Item>
+                        <Dropdown.Item href='#/action-3'>
+                          <i className='fas fa-truck'></i> Mark As Delivered
+                        </Dropdown.Item>
+                        <Dropdown.Item href='#/action-3'>
+                          <i className='fas fa-times'></i> Cancel Order
+                        </Dropdown.Item>
+                        <Dropdown.Item href='#/action-3'>
+                          <i className='fas fa-trash'></i> Remove Order
+                        </Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
+
+                    {/* <Button variant='link' size='sm' className='ellipse'>
+                      <i className='fas fa-ellipsis-h'></i>
+                    </Button> */}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
+      <Row
+        className='toast-wrapper'
+        style={{
+          position: 'fixed',
+          left: '2%',
+          bottom: '2%',
+        }}
+      >
+        <Col xs={12}>
+          <Toast
+            onClose={() => setShowNotif(false)}
+            show={showNotif}
+            delay={5000}
+            autohide
+          >
+            <Toast.Header>
+              <img src='' className='rounded mr-2' alt='' />
+              <strong className='mr-auto'>dabestdeal.com</strong>
+              <small>now</small>
+            </Toast.Header>
+            <Toast.Body style={{ background: '#ffffff' }}>
+              {toastMessage}
+            </Toast.Body>
+          </Toast>
+        </Col>
+      </Row>
       <CenteredModal closeButton={true} size='xl' title='ORDER FORM'>
         <Form onSubmit={orderFormSubmitHandler}>
           <Form.Group>
@@ -347,7 +734,6 @@ const OrderListScreen = ({ history }) => {
           <Form.Group controlId='formGridAddress1'>
             <Form.Label>Address *</Form.Label>
             <Form.Control
-              required
               placeholder='1234 Main St'
               required
               value={address}
@@ -403,6 +789,10 @@ const OrderListScreen = ({ history }) => {
                   id='COD'
                   name='paymentMethod'
                   value='Cash on Delivery'
+                  // checked={
+                  //   paymentMethod &&
+                  //   paymentMethod.toLowerCase() === 'cash on delivery'
+                  // }
                   onChange={(e) => setPaymentMethod(e.target.value)}
                 ></Form.Check>
                 <Form.Check
@@ -411,6 +801,9 @@ const OrderListScreen = ({ history }) => {
                   id='PayPal'
                   name='paymentMethod'
                   value='PayPal'
+                  // checked={
+                  //   paymentMethod && paymentMethod.toLowerCase() === 'paypal'
+                  // }
                   onChange={(e) => setPaymentMethod(e.target.value)}
                 ></Form.Check>
               </Form.Group>
@@ -429,6 +822,9 @@ const OrderListScreen = ({ history }) => {
                       placeholder='Product Search'
                       ref={searchInput}
                       onKeyDown={searchInputHandler}
+                      onKeyPress={(e) =>
+                        e.target.key === 'Enter' && e.preventDefault()
+                      }
                       // onChange={searchHandler}
                     />
                     {searchLoading ? (
@@ -441,7 +837,7 @@ const OrderListScreen = ({ history }) => {
                     <div className='search-suggestion'>
                       <ListGroup>
                         {searchResult.length ? (
-                          searchResult.length == 0 ? (
+                          searchResult.length === 0 ? (
                             <ListGroup.Item>'No Result'</ListGroup.Item>
                           ) : (
                             searchResult.map((product) => (
@@ -484,8 +880,9 @@ const OrderListScreen = ({ history }) => {
                       <ListGroup variant='flush'>
                         {orderItems.map((item) => (
                           <Fade
-                            in={item.newItem}
-                            appear={item.newItem}
+                            in={true}
+                            // appear={item.newItem}
+                            appear={true}
                             key={item.product}
                           >
                             <ListGroup.Item
@@ -504,50 +901,52 @@ const OrderListScreen = ({ history }) => {
                                 </Col>
                                 <Col md={6}>{item.name}</Col>
                                 <Col md={4} className='order-item__qty'>
-                                  <span className='currency'>
-                                    {item.price.toFixed(2)}
-                                  </span>
-                                  {' x '}
                                   {item.countInStock > 0 ? (
-                                    <Form.Control
-                                      as='select'
-                                      value={item.qty}
-                                      style={{ padding: '0px' }}
-                                      onChange={(e) => {
-                                        setDiscount('')
-                                        setOrderItems(
-                                          orderItems.map((orderItem) =>
-                                            orderItem.product === item.product
-                                              ? {
-                                                  ...orderItem,
-                                                  qty: Number(e.target.value),
-                                                }
-                                              : {
-                                                  ...orderItem,
-                                                }
+                                    <>
+                                      <span className='currency'>
+                                        {item.price.toFixed(2)}
+                                      </span>
+                                      {' x '}
+                                      <Form.Control
+                                        as='select'
+                                        value={item.qty}
+                                        style={{ padding: '0px' }}
+                                        onChange={(e) => {
+                                          setDiscount('')
+                                          setOrderItems(
+                                            orderItems.map((orderItem) =>
+                                              orderItem.product === item.product
+                                                ? {
+                                                    ...orderItem,
+                                                    qty: Number(e.target.value),
+                                                  }
+                                                : {
+                                                    ...orderItem,
+                                                  }
+                                            )
                                           )
-                                        )
-                                      }}
-                                    >
-                                      {[...Array(item.countInStock).keys()].map(
-                                        (x) => (
+                                        }}
+                                      >
+                                        {[
+                                          ...Array(item.countInStock).keys(),
+                                        ].map((x) => (
                                           <option key={x + 1} value={x + 1}>
                                             {x + 1}
                                           </option>
-                                        )
-                                      )}
-                                    </Form.Control>
+                                        ))}
+                                      </Form.Control>
+                                      <div className='orderSubTotal'>
+                                        {` = `}
+                                        <span className='currency'>
+                                          {Math.round(
+                                            item.price * item.qty
+                                          ).toFixed(2)}
+                                        </span>
+                                      </div>
+                                    </>
                                   ) : (
                                     'Out of Stock'
                                   )}
-                                  <div className='orderSubTotal'>
-                                    {` = `}
-                                    <span className='currency'>
-                                      {Math.round(
-                                        item.price * item.qty
-                                      ).toFixed(2)}
-                                    </span>
-                                  </div>
                                 </Col>
 
                                 <Col md={1}>
@@ -655,53 +1054,52 @@ const OrderListScreen = ({ history }) => {
                     )}
                   </Col>
                 </Row>
-                {orderCreateError && (
-                  <Message variant='danger'>{orderCreateError}</Message>
-                )}
               </Card.Body>
             </Card>
           </Form.Group>
           <Form.Group>
-            {/* <Form.File id='custom-file' custom>
-              <Form.File.Input id='proof' />
-              <Form.File.Label htmlFor='proof' data-browse='Button text'>
-                {proofOfSale ? proofOfSale.name : 'Custom file input'}
-              </Form.File.Label>
-              <Form.Text type='valid'>
-                <strong>Note:</strong>
-                Sale will only be credited to you if POS(Proof Of Sale) is
-                verified. POS is a screenshot of your conversation with the
-                client, must include their contact details and your name as
-                marketer.
-              </Form.Text>
-            </Form.File> */}
-            {/* <Form.File
-              id='formcheck-api-regular'
-              onChange={uploadProofOfSaleHandler}
-            >
-              <Form.File.Label>Proof Of Sale</Form.File.Label>
-              <Form.File.Input />
-            </Form.File>
-            <Form.Text>
-              <strong>Note:</strong>
-              Sale will only be credited to you if POS(Proof Of Sale) is
-              verified. POS is a screenshot of your conversation with the
-              client, must include their contact details and your name as
-              marketer.
-            </Form.Text> */}
-            <Form.File.Label>Proof Of Sale </Form.File.Label>
-            <input type='file' onChange={uploadProofOfSaleHandler} required />
-            <Form.Text>
-              <strong>Note:</strong>
-              Sale will only be credited to you if POS(Proof Of Sale) is
-              verified. POS is a screenshot of your conversation with the
-              client, must include their contact details and your name as
-              marketer.
-            </Form.Text>
-          </Form.Group>
+            {orderViewDetail.orderFrom === '' ||
+              (orderViewDetail.orderFrom === 'facebook' && (
+                <>
+                  <Form.File.Label>Proof Of Sale </Form.File.Label>
+                  <input
+                    type='file'
+                    onChange={uploadProofOfSaleHandler}
+                    required
+                  />
+                  <Form.Text>
+                    <strong>Note:</strong>
+                    Sale will only be credited to you if POS(Proof Of Sale) is
+                    verified. POS is a screenshot of your conversation with the
+                    client, must include their contact details and your name as
+                    marketer.
+                  </Form.Text>
+                </>
+              ))}
 
-          <Button type='submit' variant='primary' className='my-2' size='sm'>
-            {orderCreateLoading ? (
+            {proofOfSaleError && (
+              <Message variant='danger'>{proofOfSaleError}</Message>
+            )}
+            {orderCreateError ||
+              (orderUpdateError && (
+                <Message variant='danger'>
+                  {orderCreateError || orderUpdateError}
+                </Message>
+              ))}
+          </Form.Group>
+          <Form.Text>
+            <strong>Note:</strong>
+            Saving Delivery info assumes that orders was successfuly handed to
+            selected courier and will immediately update the invetory.
+          </Form.Text>
+          <Button
+            type='submit'
+            variant='primary'
+            className='my-2'
+            size='sm'
+            disabled={totalPrice > 0 ? false : true}
+          >
+            {orderCreateLoading || orderUpdateLoading ? (
               <Spinner animation='border' size='sm' />
             ) : (
               <i className='fas fa-cart-arrow-down'></i>
@@ -710,7 +1108,6 @@ const OrderListScreen = ({ history }) => {
           </Button>
         </Form>
       </CenteredModal>
-
       {/* Order View Modal */}
       <Modal
         //   {...props}
@@ -741,12 +1138,26 @@ const OrderListScreen = ({ history }) => {
           {Object.keys(orderViewDetail).length ? (
             <Row>
               <Col md={8}>
+                {orderViewDetail.courier && orderViewDetail.courier.trackingNo && (
+                  <ListGroup variant='flush'>
+                    <ListGroup.Item>
+                      <h4>Tracking #:{orderViewDetail.courier.trackingNo}</h4>
+                    </ListGroup.Item>
+                  </ListGroup>
+                )}
+
                 <ListGroup variant='flush'>
                   <ListGroup.Item>
-                    <h2>Shipping</h2>
+                    <h4>Shipping</h4>
                     <p>
                       <strong>Customer Name: </strong>{' '}
                       {`${orderViewDetail.firstName} ${orderViewDetail.lastName}`}
+                    </p>
+                    <p>
+                      <strong>Phone: </strong>{' '}
+                      <a href={`tel:${orderViewDetail.phone}`}>
+                        {orderViewDetail.phone}
+                      </a>
                     </p>
                     <p>
                       <strong>Email: </strong>{' '}
@@ -781,7 +1192,7 @@ const OrderListScreen = ({ history }) => {
                   </ListGroup.Item>
 
                   <ListGroup.Item>
-                    <h2>Payment Method</h2>
+                    <h4>Payment Method</h4>
                     <p>
                       <strong>Method: </strong>
                       {orderViewDetail.paymentMethod}
@@ -802,7 +1213,7 @@ const OrderListScreen = ({ history }) => {
                   </ListGroup.Item>
 
                   <ListGroup.Item>
-                    <h2>Order Items</h2>
+                    <h4>Order Items</h4>
                     {orderViewDetail.orderItems.length === 0 ? (
                       <Message>Order is empty</Message>
                     ) : (
@@ -839,13 +1250,26 @@ const OrderListScreen = ({ history }) => {
                       </ListGroup>
                     )}
                   </ListGroup.Item>
+                  {orderViewDetail.orderFrom === 'facebook' && (
+                    <ListGroup.Item>
+                      <h4>Invoice</h4>
+                      <Image src={orderViewDetail.proofOfSale} fluid rounded />
+                    </ListGroup.Item>
+                  )}
+                  {orderViewDetail.orderStatus.toLowerCase() ===
+                    'cancelled' && (
+                    <ListGroup.Item>
+                      <h4>Cancellation Remarks</h4>
+                      <p>{orderViewDetail.cancellationRemarks}</p>
+                    </ListGroup.Item>
+                  )}
                 </ListGroup>
               </Col>
               <Col md={4}>
                 <Card>
                   <ListGroup variant='flush'>
                     <ListGroup.Item>
-                      <h2>Order Summary</h2>
+                      <h4>Order Summary</h4>
                     </ListGroup.Item>
                     <ListGroup.Item>
                       <Row>
@@ -868,7 +1292,7 @@ const OrderListScreen = ({ history }) => {
                           {orderViewDetail.shippingPrice > 0 && (
                             <span>&#8369;</span>
                           )}
-                          {orderViewDetail.shippingPrice == 0
+                          {orderViewDetail.shippingPrice === 0
                             ? 'Free'
                             : orderViewDetail.shippingPrice.toFixed(2)}
                         </Col>
@@ -892,31 +1316,66 @@ const OrderListScreen = ({ history }) => {
                         </Col>
                       </Row>
                     </ListGroup.Item>
-                    <ListGroup.Item>
-                      <Button
-                        type='button'
-                        className='btn btn-block'
-                        // onClick={deliverHandler}
-                      >
-                        <i className='fas fa-edit'></i> Edit Order
-                      </Button>
-                    </ListGroup.Item>
+                    {orderViewDetail.orderStatus.toLowerCase() ===
+                      'processing' && (
+                      <ListGroup.Item>
+                        <Button
+                          type='button'
+                          className='btn btn-block'
+                          onClick={editOrderHandler}
+                        >
+                          <i className='fas fa-edit'></i> Edit Order
+                        </Button>
+                      </ListGroup.Item>
+                    )}
+                    {orderViewDetail.orderStatus.toLowerCase() ===
+                      'pending' && (
+                      <ListGroup.Item>
+                        <Button
+                          type='button'
+                          className='btn btn-block'
+                          onClick={editOrderHandler}
+                        >
+                          <i className='fas fa-edit'></i> Edit Order
+                        </Button>
+                      </ListGroup.Item>
+                    )}
+
+                    {orderViewDetail.orderStatus.toLowerCase() ===
+                      'processing' && (
+                      <ListGroup.Item>
+                        <Button
+                          type='button'
+                          className='btn btn-block'
+                          onClick={sendForShippingHandler}
+                        >
+                          <i className='fas fa-shipping-fast'></i> Send for
+                          shipping
+                        </Button>
+                      </ListGroup.Item>
+                    )}
+
                     {orderViewDetail.orderStatus === 'pending' &&
                       orderViewDetail.orderFrom === 'website' && (
                         <ListGroup.Item>
                           <Button
                             type='button'
                             className='btn btn-block'
-                            // onClick={deliverHandler}
+                            onClick={confirmHandler}
                           >
-                            <i className='fas fa-clipboard-check'></i> Confirm
-                            Order
+                            {orderUpdateLoading ? (
+                              <Spinner size='sm' animation='border'></Spinner>
+                            ) : (
+                              <i className='fas fa-clipboard-check'></i>
+                            )}{' '}
+                            Confirm Order
                           </Button>
                         </ListGroup.Item>
                       )}
 
                     {userInfo &&
                       userInfo.isAdmin &&
+                      // userInfo.role.toLowerCase() === 'admin' &&
                       orderViewDetail.orderStatus.toLowerCase() ===
                         'to deliver' &&
                       !orderViewDetail.isDelivered && (
@@ -930,36 +1389,70 @@ const OrderListScreen = ({ history }) => {
                           </Button>
                         </ListGroup.Item>
                       )}
-                    <ListGroup.Item>
-                      <Button
-                        type='button'
-                        className='btn btn-block'
-                        size='md'
-                        // onClick={deliverHandler}
-                      >
-                        <i className='fas fa-times' /> Cancel Oder
-                      </Button>
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                      <Button
-                        type='button'
-                        className='btn btn-block'
-                        size='md'
-                        // onClick={deliverHandler}
-                      >
-                        <i className='fas fa-undo-alt'></i> Return Oder
-                      </Button>
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                      <Button
-                        type='button'
-                        className='btn btn-block'
-                        size='md'
-                        // onClick={deliverHandler}
-                      >
-                        <i className='fas fa-trash'></i> Remove Order
-                      </Button>
-                    </ListGroup.Item>
+                    {userInfo &&
+                      userInfo.isAdmin &&
+                      orderViewDetail.orderStatus.toLowerCase() !==
+                        'to deliver' &&
+                      orderViewDetail.orderStatus.toLowerCase() !==
+                        'cancelled' &&
+                      !orderViewDetail.isDelivered &&
+                      orderViewDetail.orderStatus.toLowerCase() !==
+                        'completed' && (
+                        <ListGroup.Item>
+                          <Button
+                            type='button'
+                            className='btn btn-block'
+                            size='md'
+                            onClick={cancelHandler}
+                          >
+                            <i className='fas fa-times' /> Cancel Oder
+                          </Button>
+                        </ListGroup.Item>
+                      )}
+
+                    {userInfo &&
+                      userInfo.isAdmin &&
+                      // userInfo.role.toLowerCase() === 'admin' &&
+                      orderViewDetail.orderStatus.toLowerCase() !== 'pending' &&
+                      orderViewDetail.orderStatus.toLowerCase() !==
+                        'processing' &&
+                      orderViewDetail.orderStatus.toLowerCase() !==
+                        'completed' &&
+                      orderViewDetail.orderStatus.toLowerCase() !==
+                        'cancelled' && (
+                        <>
+                          {' '}
+                          <ListGroup.Item>
+                            <Button
+                              type='button'
+                              className='btn btn-block'
+                              size='md'
+                              // onClick={deliverHandler}
+                            >
+                              <i className='fas fa-undo-alt'></i> Return Oder
+                            </Button>
+                          </ListGroup.Item>
+                        </>
+                      )}
+                    {userInfo &&
+                      userInfo.isAdmin &&
+                      userInfo.role.toLowerCase() === 'admin' &&
+                      orderViewDetail.orderStatus.toLowerCase() !==
+                        'completed' && (
+                        <>
+                          <ListGroup.Item>
+                            <Button
+                              type='button'
+                              className='btn btn-block'
+                              size='md'
+                              // onClick={deliverHandler}
+                            >
+                              <i className='fas fa-trash'></i> Remove Order
+                            </Button>
+                          </ListGroup.Item>
+                        </>
+                      )}
+
                     {/* Modal Actions */}
                   </ListGroup>
                 </Card>
@@ -979,129 +1472,135 @@ const OrderListScreen = ({ history }) => {
       </Modal>
       {/* Order View Modal END */}
 
-      <Row className='align-items-center'>
-        <Col>
-          <h1>Orders</h1>
-        </Col>
-        <Col className='text-right'>
-          <Button className='my-2' size='sm' onClick={addOrderHandler}>
-            <i className='fas fa-plus'></i> Add Order
-          </Button>
-        </Col>
-      </Row>
-      {loading ? (
-        <Loader />
-      ) : error ? (
-        <Message variant='danger'>{error}</Message>
-      ) : (
-        <Table
-          striped
-          bordered
-          hover
-          responsive
-          className='table-sm order-table'
-        >
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>CUSTOMER NAME</th>
-              <th>PHONE</th>
-              <th>STATUS</th>
-              <th>DATE</th>
-              <th>TOTAL</th>
-              {/* <th>PAID</th>
-              <th>DELIVERED</th> */}
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order) => (
-              <tr key={order._id} className='order__wrapper'>
-                <td>{order._id}</td>
-                <td>{`${order.firstName} ${order.lastName}`}</td>
-                <td>{order.phone}</td>
-                <td>
-                  <span
-                    className={`status ${
-                      order.orderStatus && order.orderStatus.replace(/\s/g, '-')
-                    }`}
-                  >
-                    {order.orderStatus ? order.orderStatus : 'no status'}
-                  </span>
-                </td>
-                <td>{moment(order.createdAt).format('MM-DD-YYYY h:mmA')}</td>
-                <td>
-                  <span className='currency'>
-                    {order.totalPrice.toFixed(2)}
-                  </span>
-                </td>
-                {/* <td>
-                  {order.isPaid ? (
-                    order.paidAt.substring(0, 10)
-                  ) : (
-                    <i className='fas fa-times' style={{ color: 'red' }}></i>
-                  )}
-                </td> */}
-                {/* <td>
-                  {order.isDelivered ? (
-                    order.deliveredAt.substring(0, 10)
-                  ) : (
-                    <i className='fas fa-times' style={{ color: 'red' }}></i>
-                  )}
-                </td> */}
-                <td>
-                  <div className='actions__wrapper'>
-                    <div className='quick-btn-wrap'>
-                      <OverlayTrigger
-                        overlay={
-                          <Tooltip id='tooltip-disabled'>View Order</Tooltip>
-                        }
-                      >
-                        {/* <LinkContainer to={`/order/${order._id}`}> */}
-                        <Button
-                          variant='link'
-                          size='sm'
-                          onClick={() => {
-                            orderViewHandler(order._id)
-                          }}
-                        >
-                          <i className='fa fa-eye' aria-hidden='true'></i>
-                        </Button>
-                        {/* </LinkContainer> */}
-                      </OverlayTrigger>
-                    </div>
+      {/* Send For Shipping Modal START*/}
+      <Modal
+        //   {...props}
+        show={shippingModal}
+        size={'md'}
+        aria-labelledby='contained-modal-title-vcenter'
+        centered
+        onHide={() => setShippingModal(false)}
+      >
+        <Modal.Header closeButton={true}>
+          <Modal.Title id='contained-modal-title-vcenter'>
+            <i className='fas fa-shipping-fast'></i> Courier Info
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={courierFormSubmit}>
+            <Form.Group>
+              <Form.Group controlId='exampleForm.ControlSelect1'>
+                <Form.Label>Courier Name</Form.Label>
+                <Form.Control
+                  as='select'
+                  onChange={(e) => setCourierName(e.target.value)}
+                  required
+                >
+                  <option value=''>Choose a Courrier</option>
+                  <option value='jnt'>JNT</option>
+                </Form.Control>
+              </Form.Group>
+              {courierName && (
+                <>
+                  <Form.Group>
+                    <Form.Label>Order No.</Form.Label>
+                    <Form.Control
+                      onChange={(e) => setCourierOrderNo(e.target.value)}
+                      required
+                      pattern='^[0-9]$'
+                    />
+                  </Form.Group>
+                  <Form.Group>
+                    <Form.Label>Tracking No.</Form.Label>
+                    <Form.Control
+                      onChange={(e) => setCourierTrackingNo(e.target.value)}
+                      required
+                      pattern='\d{12,}'
+                      minLength={12}
+                    />
+                  </Form.Group>
+                  <Form.Group>
+                    <Form.Label>Shipment Rate</Form.Label>
+                    <Form.Control
+                      onChange={(e) => setCourierRate(e.target.value)}
+                      required
+                    />
+                  </Form.Group>
+                  <Form.Group>
+                    <Form.Label>Remarks</Form.Label>
+                    <Form.Control
+                      as='textarea'
+                      onChange={(e) => setProcessingRemarks(e.target.value)}
+                      required
+                    />
+                  </Form.Group>
+                </>
+              )}
+            </Form.Group>
+            {trackingError && (
+              <Form.Group>
+                <Message variant='danger'>{trackingErrorMessage}</Message>
+              </Form.Group>
+            )}
 
-                    <Dropdown>
-                      <Dropdown.Toggle id='dropdown-basic'>
-                        <i className='fas fa-ellipsis-h'></i>
-                      </Dropdown.Toggle>
+            {courierOrderNo && courierTrackingNo && (
+              <Button type='submit' disabled={!courierRate}>
+                {orderUpdateLoading ? (
+                  <Spinner size='sm' animation='border' />
+                ) : (
+                  <i className='fas fa-truck-loading'></i>
+                )}{' '}
+                Save Delivery
+              </Button>
+            )}
+          </Form>
+        </Modal.Body>
+      </Modal>
+      {/* Send for Shipping Modal End */}
 
-                      <Dropdown.Menu>
-                        <Dropdown.Item href='#/action-2'>
-                          <i className='far fa-eye'></i> Order Details
-                        </Dropdown.Item>
-                        <Dropdown.Item href='#/action-3'>
-                          <i className='fas fa-truck'></i> Mark As Delivered
-                        </Dropdown.Item>
-                        <Dropdown.Item href='#/action-3'>
-                          <i className='fas fa-times'></i> Cancel Order
-                        </Dropdown.Item>
-                        <Dropdown.Item href='#/action-3'>
-                          <i className='fas fa-trash'></i> Remove Order
-                        </Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
+      {/* Cancellation Modal START*/}
+      <Modal
+        //   {...props}
+        show={cancellationModal}
+        size={'md'}
+        aria-labelledby='contained-modal-title-vcenter'
+        centered
+        onHide={() => setCancellationModal(false)}
+      >
+        <Modal.Header closeButton={true}>
+          <Modal.Title id='contained-modal-title-vcenter'>
+            <i className='fas fa-times'></i> Order Cancellation
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={cancellationSubmit}>
+            <Form.Group>
+              <Form.Label>Remarks</Form.Label>
+              <Form.Control
+                as='textarea'
+                onChange={(e) => setCancellationRemarks(e.target.value)}
+                required
+              />
+            </Form.Group>
 
-                    {/* <Button variant='link' size='sm' className='ellipse'>
-                      <i className='fas fa-ellipsis-h'></i>
-                    </Button> */}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      )}
+            {/* {trackingError && (
+              <Form.Group>
+                <Message variant='danger'>{trackingErrorMessage}</Message>
+              </Form.Group>
+            )} */}
+
+            <Button type='submit'>
+              {orderUpdateLoading ? (
+                <Spinner size='sm' animation='border' />
+              ) : (
+                <i className='fas fa-save'></i>
+              )}{' '}
+              Save Cancellation Remarks
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+      {/* Send for Shipping Modal End */}
     </>
   )
 }
