@@ -6,6 +6,8 @@ import {
   ORDER_UPDATE_SUCCESS,
   ORDER_UPDATE_FAIL,
   ORDER_UPDATE_RESET,
+  ORDER_DELETE_REQUEST,
+  ORDER_DELETE_SUCCESS,
   ORDER_DETAILS_REQUEST,
   ORDER_DETAILS_SUCCESS,
   ORDER_DETAILS_FAIL,
@@ -70,6 +72,25 @@ export const orderUpdateReducer = (state = {}, action) => {
       }
     case ORDER_UPDATE_RESET:
       return {}
+    default:
+      return state
+  }
+}
+
+export const orderDeleteReducer = (state = {}, action) => {
+  switch (action.type) {
+    case ORDER_DELETE_REQUEST:
+      return {
+        //if ...state is pass initial state and recurring updates with state will also carried over here
+        loading: true,
+        // success: false,
+      }
+    case ORDER_DELETE_SUCCESS:
+      return {
+        loading: false,
+        success: true,
+        order: action.payload,
+      }
     default:
       return state
   }

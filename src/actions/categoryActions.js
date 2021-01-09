@@ -35,14 +35,15 @@ export const addSegmentToCategory = (categoryId, segmentId) => async (
   getState
 ) => {
   try {
-    const {
-      userLogin: { userInfo },
-    } = getState()
+    // const {
+    //   userLogin: { userInfo },
+    // } = getState()
 
     const config = {
       headers: {
+        withCredentials: true,
         // 'Content-Type': 'application/json',
-        Authorization: `Bearer ${userInfo.token}`,
+        // Authorization: `Bearer ${userInfo.token}`,
       },
     }
 

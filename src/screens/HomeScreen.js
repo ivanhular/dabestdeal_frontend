@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { Row, Col } from 'react-bootstrap'
+import { Row, Col, Card } from 'react-bootstrap'
 import Product from '../components/Product'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
@@ -31,31 +31,47 @@ const HomeScreen = ({ match }) => {
         <ProductCarousel />
       ) : (
         <Link to='/' className='btn btn-light'>
-          Go Back
+          <i className='fas fa-store'></i> Go Back
         </Link>
       )}
-      <h1>Latest Products</h1>
+
       {loading ? (
         <Loader />
       ) : error ? (
         <Message variant='danger'>{error}</Message>
       ) : (
         <>
-          <Row>
-            {products.map(
-              (product) =>
-                product.status && (
-                  <Col key={product._id} sm={12} md={6} lg={4} xl={3}>
-                    <Product product={product} />
-                  </Col>
-                )
+          <div className='latest-product-wrap'>
+            <h1 className='heading'>
+              {!keyword ? 'Latest Products' : 'Product Search'}
+            </h1>
+            {keyword && (
+              <div style={{ textAlign: 'center' }}>
+                <h5>
+                  <strong>
+                    {`(${products?.length}) Results for`}
+                    <em>{`"${keyword}"`}</em>
+                  </strong>
+                </h5>
+              </div>
             )}
-          </Row>
-          <Paginate
-            pages={pages}
-            page={page}
-            keyword={keyword ? keyword : ''}
-          />
+
+            <Row>
+              {products.map(
+                (product) =>
+                  product.status && (
+                    <Col key={product._id} sm={12} md={6} lg={4} xl={3}>
+                      <Product product={product} />
+                    </Col>
+                  )
+              )}
+            </Row>
+            <Paginate
+              pages={pages}
+              page={page}
+              keyword={keyword ? keyword : ''}
+            />
+          </div>
         </>
       )}
     </>

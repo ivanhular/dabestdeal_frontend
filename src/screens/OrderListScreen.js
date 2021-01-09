@@ -24,8 +24,17 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger'
 import Tooltip from 'react-bootstrap/Tooltip'
 import Loader from '../components/Loader'
 import Fade from 'react-bootstrap/Fade'
-import { listOrders, createOrder, updateOrder } from '../actions/orderActions'
-import { listProducts, updateProduct } from '../actions/productActions'
+import 'react-dates/initialize'
+import { DateRangePicker } from 'react-dates'
+import 'react-dates/lib/css/_datepicker.css'
+import {
+  listOrders,
+  createOrder,
+  updateOrder,
+  deleteOrder,
+  deliverOrder,
+} from '../actions/orderActions'
+import { listProducts } from '../actions/productActions'
 import { MODAL_OPEN, MODAL_CLOSE } from '../constants/appConstants'
 import { PRODUCT_LIST_RESET } from '../constants/productConstants'
 
@@ -57,9 +66,19 @@ const OrderListScreen = ({ history }) => {
     error: orderUpdateError,
   } = orderUpdate
 
+  const orderDelete = useSelector((state) => state.orderDelete)
+  const {
+    loading: orderDeleteLoading,
+    success: orderDeleteSuccess,
+  } = orderDelete
+
+  const orderDeliver = useSelector((state) => state.orderDeliver)
+  const { loading: derliverLoading, success: deliverSuccess } = orderDeliver
+
   /*** ORDER FORM ***/
   const searchInput = useRef(null)
   const buttonRef = useRef(null)
+  const orderSearchbuttonRef = useRef(null)
 
   const [searchResult, setSearchResult] = useState([])
   const [orderItems, setOrderItems] = useState([])
@@ -70,6 +89,7 @@ const OrderListScreen = ({ history }) => {
   const [phone, setPhone] = useState('')
   const [address, setAddress] = useState('')
   const [city, setCity] = useState('')
+  const [province, setProvince] = useState('')
   const [email, setEmail] = useState('')
   const [postalCode, setPostalCode] = useState('')
   const [country, setCountry] = useState('philippines')
@@ -117,6 +137,19 @@ const OrderListScreen = ({ history }) => {
   const [cancellationModal, setCancellationModal] = useState(false)
   const [cancellationRemarks, setCancellationRemarks] = useState('')
 
+  /*** RETURNED FORM ***/
+  const [returnedModal, setReturnedModal] = useState(false)
+  const [returnedRemarks, setReturnedRemarks] = useState('')
+
+  /*** DELETE FORM ***/
+  const [deleteModal, setDeleteModal] = useState(false)
+
+  /*** SEARCH ***/
+  const [startDate, setStartDate] = useState(null)
+  const [endDate, setEndDate] = useState(null)
+  const [focusedInput, setFocusedInput] = useState(null)
+  const [search, setSearch] = useState('')
+
   useEffect(() => {
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && e.target.nodeName === 'INPUT') {
@@ -125,12 +158,25 @@ const OrderListScreen = ({ history }) => {
       }
     })
     if (orderUpdateSuccess) {
-      setOrderViewDetail(orderUpdated)
-      dispatch(listOrders())
+      setOrderViewDetail({})
+      setOrderViewModal(false)
       dispatch({ type: MODAL_CLOSE })
+      dispatch(listOrders())
+      setShowNotif(true)
+    }
+    if (orderDeleteSuccess) {
+      setDeleteModal(false)
       setOrderViewModal(false)
       setOrderViewDetail({})
-      setToastMessage('Order Updated Successfully')
+      dispatch({ type: MODAL_CLOSE })
+      dispatch(listOrders())
+      setShowNotif(true)
+    }
+    if (deliverSuccess) {
+      setOrderViewModal(false)
+      setOrderViewDetail({})
+      dispatch({ type: MODAL_CLOSE })
+      dispatch(listOrders())
       setShowNotif(true)
     }
     if (orderCreateSuccess) {
@@ -150,10 +196,18 @@ const OrderListScreen = ({ history }) => {
       setShippingPrice(0)
       setDiscount('')
       setTotalPrice(0)
-      dispatch(listOrders())
       dispatch({ type: MODAL_CLOSE })
+      dispatch(listOrders())
+      setShowNotif(true)
     }
-  }, [orderUpdateSuccess, orderUpdated, orderCreateSuccess, dispatch])
+  }, [
+    deliverSuccess,
+    orderDeleteSuccess,
+    orderUpdateSuccess,
+    orderUpdated,
+    orderCreateSuccess,
+    dispatch,
+  ])
 
   useEffect(() => {
     const maxDiscount = 20 //%
@@ -285,10 +339,11 @@ const OrderListScreen = ({ history }) => {
 
     if (orderItems.length > 0 && totalPrice > 0) {
       const config = {
+        withCredentials: true,
         headers: {
           Accept: 'application/json',
           'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${userInfo.token}`,
+          // Authorization: `Bearer ${userInfo.token}`,
         },
       }
 
@@ -310,7 +365,14 @@ const OrderListScreen = ({ history }) => {
               lastName,
               phone,
               email,
-              shippingAddress: { address, city, postalCode, country, landMark },
+              shippingAddress: {
+                address,
+                city,
+                province,
+                postalCode,
+                country,
+                landMark,
+              },
               paymentMethod,
               shippingPrice,
               totalPrice,
@@ -321,6 +383,7 @@ const OrderListScreen = ({ history }) => {
               proofOfSale: url[0],
             })
           )
+          setToastMessage('Order Created')
         } else {
           if (orderViewDetail.orderFrom !== 'website') {
             //update order from sales
@@ -355,6 +418,7 @@ const OrderListScreen = ({ history }) => {
                 proofOfSale: url[0],
               })
             )
+            setToastMessage('Updated Successfully')
           } else {
             //update order from website
             dispatch(
@@ -382,6 +446,7 @@ const OrderListScreen = ({ history }) => {
                 orderRemarks,
               })
             )
+            setToastMessage('Updated Successfully')
           }
 
           setIsEditView(false)
@@ -451,6 +516,7 @@ const OrderListScreen = ({ history }) => {
         confirmedAt: Date.now(),
       })
     )
+    setToastMessage('Order Confirmed')
   }
 
   const sendForShippingHandler = () => {
@@ -468,25 +534,57 @@ const OrderListScreen = ({ history }) => {
       const { status } = await axios.get(
         `/api/orders/tracking/${courierTrackingNo}`
       )
-      if (status === 200) {
-        dispatch(
-          updateOrder(orderViewDetail._id, {
-            orderStatus: 'to deliver',
-            processedAt: Date.now(),
-            processedBy: userInfo._id,
-            processingRemarks,
-            courier: {
-              name: courierName,
-              orderNo: courierOrderNo,
-              trackingNo: courierTrackingNo,
-              rate: courierRate,
-            },
-          })
+      // if (status === 200) {
+      dispatch(
+        updateOrder(orderViewDetail._id, {
+          orderStatus: 'to deliver',
+          processedAt: Date.now(),
+          processedBy: userInfo._id,
+          processingRemarks,
+          courier: {
+            name: courierName,
+            orderNo: courierOrderNo,
+            trackingNo: courierTrackingNo,
+            rate: courierRate,
+          },
+        })
+      )
+      orderViewDetail.orderItems.map(async (item) => {
+        const {
+          data: { countInStock, status },
+        } = await axios.get(`/api/products/${item.product}`)
+
+        const config = {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json',
+            // Authorization: `Bearer ${userInfo.token}`,
+          },
+        }
+
+        // await axios.put(
+        //   `/api/products/${item.product}`,
+        //   { ...orderViewDetail, countInStock: countInStock - item.qty },
+        //   config
+        // )
+
+        await axios.put(
+          `/api/products/${item.product}`,
+          { status, countInStock: countInStock - item.qty },
+          config
         )
-        setShippingModal(false)
-        setTrackingErrorMessage('')
-        setTrackingError(false)
-      }
+      })
+      setShippingModal(false)
+      setCourierName('')
+      setCourierOrderNo('')
+      setCourierOrderNo('')
+      setCourierTrackingNo('')
+      setCourierRate('')
+      setProcessingRemarks('')
+      setTrackingErrorMessage('')
+      setTrackingError(false)
+      setToastMessage('Order Sent For Delivery')
+      // }
     } catch (error) {
       setTrackingErrorMessage(error.response.message)
       setTrackingError(true)
@@ -506,18 +604,157 @@ const OrderListScreen = ({ history }) => {
       })
     )
     setCancellationRemarks('')
+    setToastMessage('Order Cancelled')
     setCancellationModal(false)
   }
+
+  const returnedSubmitHandler = (e) => {
+    e.preventDefault()
+
+    orderViewDetail.orderItems.map(async (item) => {
+      const {
+        data: { countInStock, status },
+      } = await axios.get(`/api/products/${item.product}`)
+
+      const config = {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json',
+          // Authorization: `Bearer ${userInfo.token}`,
+        },
+      }
+
+      // await axios.put(
+      //   `/api/products/${item.product}`,
+      //   { ...orderViewDetail, countInStock: countInStock + item.qty },
+      //   config
+      // )
+      await axios.put(
+        `/api/products/${item.product}`,
+        { status, countInStock: countInStock + item.qty },
+        config
+      )
+    })
+
+    dispatch(
+      updateOrder(orderViewDetail._id, {
+        orderStatus: 'returned',
+        returnedRemarks,
+      })
+    )
+    setToastMessage('Updated Successfully')
+    setReturnedRemarks('')
+    setReturnedModal(false)
+  }
+
+  const returnHandler = (e) => {
+    setReturnedModal(true)
+  }
+
+  const removeHandler = (e) => {
+    setDeleteModal(true)
+  }
+  const removeConfirmationHandler = () => {
+    dispatch(deleteOrder(orderViewDetail._id))
+    setToastMessage('Order Deleted Successfully')
+  }
+  const deliveredHandler = () => {
+    dispatch(deliverOrder(orderViewDetail))
+    setToastMessage('Order Completed')
+  }
+
+  const orderSearchHandler = () => {
+    if (startDate && endDate) {
+      dispatch(
+        listOrders({
+          search,
+          startDate: startDate.startOf('day').valueOf(),
+          endDate: endDate.endOf('day').valueOf(),
+        })
+      )
+    } else {
+      dispatch(
+        listOrders({
+          search,
+        })
+      )
+    }
+  }
+
+  const orderInputHandler = (e) => {
+    if (e.key === 'Enter') orderSearchbuttonRef.current.click()
+  }
+
   return (
     <>
       <Row className='align-items-center'>
-        <Col>
+        <Col md={1}>
           <h1>Orders</h1>
         </Col>
         <Col className='text-right'>
-          <Button className='my-2' size='sm' onClick={addOrderHandler}>
-            <i className='fas fa-plus'></i> Add Order
-          </Button>
+          <Row>
+            <Col xs={12} md={5} className='date-wrapper'>
+              <div>
+                <DateRangePicker
+                  startDate={startDate} // momentPropTypes.momentObj or null,
+                  startDateId='startDate' // PropTypes.string.isRequired,
+                  endDate={endDate} // momentPropTypes.momentObj or null,
+                  endDateId='endDate' // PropTypes.string.isRequired,
+                  onDatesChange={({ startDate, endDate }) => {
+                    setStartDate(startDate)
+                    setEndDate(endDate)
+                  }} // PropTypes.func.isRequired,
+                  focusedInput={focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
+                  onFocusChange={(focusedInput) =>
+                    setFocusedInput(focusedInput)
+                  } // PropTypes.func.isRequired,
+                  isOutsideRange={() => false}
+                  minimumNights={0}
+                  // showClearDate={true}
+                  onClose={() => orderSearchbuttonRef.current.focus()}
+                  numberOfMonths={1}
+                  // small={true}
+                />
+                {startDate && endDate && (
+                  <a
+                    className='fas fa-times clearDate'
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setStartDate(null)
+                      setEndDate(null)
+                      dispatch(
+                        listOrders({
+                          search,
+                        })
+                      )
+                    }}
+                  ></a>
+                )}
+              </div>
+            </Col>
+            <Col xs={12} md={5} className='order-search-wrapper'>
+              <Form.Group style={{ marginBottom: 0 }}>
+                <Form.Control
+                  placeholder='Enter Search Keyword'
+                  onKeyDown={orderInputHandler}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+              </Form.Group>
+              <Button
+                className='order-search-btn'
+                ref={orderSearchbuttonRef}
+                onClick={orderSearchHandler}
+              >
+                <i className='fa fa-search'></i>
+              </Button>
+            </Col>
+
+            <Col md={2} className='order-btn-wrapper'>
+              <Button className='my-2' size='sm' onClick={addOrderHandler}>
+                <i className='fas fa-plus'></i> Add Order
+              </Button>
+            </Col>
+          </Row>
         </Col>
       </Row>
       {loading ? (
@@ -548,13 +785,24 @@ const OrderListScreen = ({ history }) => {
           <tbody>
             {orders.map((order) => (
               <tr key={order._id} className='order__wrapper'>
-                <td>
+                <td
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    orderViewHandler(order._id)
+                  }}
+                >
                   <Badge pill variant='info' style={{ marginRight: '5px' }}>
                     {order.orderFrom}
                   </Badge>
                   {order._id}
                 </td>
-                <td>{`${order.firstName} ${order.lastName}`}</td>
+                <td
+                  className='name'
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    orderViewHandler(order._id)
+                  }}
+                >{`${order.firstName} ${order.lastName}`}</td>
                 <td>{order.phone}</td>
                 <td>
                   <span
@@ -576,20 +824,6 @@ const OrderListScreen = ({ history }) => {
                     {order.totalPrice.toFixed(2)}
                   </span>
                 </td>
-                {/* <td>
-                  {order.isPaid ? (
-                    order.paidAt.substring(0, 10)
-                  ) : (
-                    <i className='fas fa-times' style={{ color: 'red' }}></i>
-                  )}
-                </td> */}
-                {/* <td>
-                  {order.isDelivered ? (
-                    order.deliveredAt.substring(0, 10)
-                  ) : (
-                    <i className='fas fa-times' style={{ color: 'red' }}></i>
-                  )}
-                </td> */}
                 <td>
                   <div className='actions__wrapper'>
                     <div className='quick-btn-wrap'>
@@ -618,10 +852,14 @@ const OrderListScreen = ({ history }) => {
                       </Dropdown.Toggle>
 
                       <Dropdown.Menu>
-                        <Dropdown.Item href='#/action-2'>
+                        <Dropdown.Item
+                          onClick={() => {
+                            orderViewHandler(order._id)
+                          }}
+                        >
                           <i className='far fa-eye'></i> Order Details
                         </Dropdown.Item>
-                        <Dropdown.Item href='#/action-3'>
+                        <Dropdown.Item>
                           <i className='fas fa-truck'></i> Mark As Delivered
                         </Dropdown.Item>
                         <Dropdown.Item href='#/action-3'>
@@ -633,9 +871,7 @@ const OrderListScreen = ({ history }) => {
                       </Dropdown.Menu>
                     </Dropdown>
 
-                    {/* <Button variant='link' size='sm' className='ellipse'>
-                      <i className='fas fa-ellipsis-h'></i>
-                    </Button> */}
+                    {/* Quick Actions */}
                   </div>
                 </td>
               </tr>
@@ -669,7 +905,12 @@ const OrderListScreen = ({ history }) => {
           </Toast>
         </Col>
       </Row>
-      <CenteredModal closeButton={true} size='xl' title='ORDER FORM'>
+      <CenteredModal
+        closeButton={true}
+        size='xl'
+        title='ORDER FORM'
+        className='order-modal'
+      >
         <Form onSubmit={orderFormSubmitHandler}>
           <Form.Group>
             <Form.Label>Customer Name</Form.Label>
@@ -741,6 +982,14 @@ const OrderListScreen = ({ history }) => {
             />
           </Form.Group>
           <Form.Row>
+            <Form.Group as={Col} controlId='formGridCity'>
+              <Form.Label>Province *</Form.Label>
+              <Form.Control
+                required
+                value={province}
+                onChange={(e) => setProvince(e.target.value)}
+              />
+            </Form.Group>
             <Form.Group as={Col} controlId='formGridCity'>
               <Form.Label>City *</Form.Label>
               <Form.Control
@@ -816,7 +1065,7 @@ const OrderListScreen = ({ history }) => {
             <Card>
               <Card.Body>
                 <Form.Group>
-                  <div className='order-search-btn'>
+                  <div className='product-search-btn'>
                     {' '}
                     <Form.Control
                       placeholder='Product Search'
@@ -1058,24 +1307,24 @@ const OrderListScreen = ({ history }) => {
             </Card>
           </Form.Group>
           <Form.Group>
-            {orderViewDetail.orderFrom === '' ||
-              (orderViewDetail.orderFrom === 'facebook' && (
-                <>
-                  <Form.File.Label>Proof Of Sale </Form.File.Label>
-                  <input
-                    type='file'
-                    onChange={uploadProofOfSaleHandler}
-                    required
-                  />
-                  <Form.Text>
-                    <strong>Note:</strong>
-                    Sale will only be credited to you if POS(Proof Of Sale) is
-                    verified. POS is a screenshot of your conversation with the
-                    client, must include their contact details and your name as
-                    marketer.
-                  </Form.Text>
-                </>
-              ))}
+            {(Object.keys(orderViewDetail).length === 0 ||
+              orderViewDetail.orderFrom === 'facebook') && (
+              <>
+                <Form.File.Label>Proof Of Sale </Form.File.Label>
+                <input
+                  type='file'
+                  onChange={uploadProofOfSaleHandler}
+                  required
+                />
+                <Form.Text>
+                  <strong>Note:</strong>
+                  Sale will only be credited to you if POS(Proof Of Sale) is
+                  verified. POS is a screenshot of your conversation with the
+                  client, must include their contact details and your name as
+                  marketer.
+                </Form.Text>
+              </>
+            )}
 
             {proofOfSaleError && (
               <Message variant='danger'>{proofOfSaleError}</Message>
@@ -1087,17 +1336,13 @@ const OrderListScreen = ({ history }) => {
                 </Message>
               ))}
           </Form.Group>
-          <Form.Text>
-            <strong>Note:</strong>
-            Saving Delivery info assumes that orders was successfuly handed to
-            selected courier and will immediately update the invetory.
-          </Form.Text>
+
           <Button
             type='submit'
             variant='primary'
             className='my-2'
             size='sm'
-            disabled={totalPrice > 0 ? false : true}
+            disabled={totalPrice > 0 && !discountError ? false : true}
           >
             {orderCreateLoading || orderUpdateLoading ? (
               <Spinner animation='border' size='sm' />
@@ -1115,24 +1360,34 @@ const OrderListScreen = ({ history }) => {
         size={'xl'}
         aria-labelledby='contained-modal-title-vcenter'
         centered
-        onHide={() => setOrderViewModal(false)}
+        className='order-view__modal'
+        onHide={() => {
+          setOrderViewModal(false)
+          setOrderViewDetail({})
+        }}
       >
         <Modal.Header closeButton={true}>
-          <span
-            className={`status ${
-              orderViewDetail.orderStatus &&
-              orderViewDetail.orderStatus.replace(/\s/g, '-')
-            }`}
-            style={{ marginRight: '20px' }}
-          >
-            {orderViewDetail.orderStatus
-              ? orderViewDetail.orderStatus
-              : 'no status'}
-          </span>
-          <Modal.Title id='contained-modal-title-vcenter'>
-            Order ID:{' '}
-            <span className='order-detail-id'>{orderViewDetail._id}</span>
-          </Modal.Title>
+          <Row>
+            <Col xs={12}>
+              <span
+                className={`status ${
+                  orderViewDetail.orderStatus &&
+                  orderViewDetail.orderStatus.replace(/\s/g, '-')
+                }`}
+                style={{ marginRight: '20px' }}
+              >
+                {orderViewDetail.orderStatus
+                  ? orderViewDetail.orderStatus
+                  : 'no status'}
+              </span>
+            </Col>
+            <Col xs={12}>
+              <Modal.Title id='contained-modal-title-vcenter'>
+                Order ID:{' '}
+                <span className='order-detail-id'>{orderViewDetail._id}</span>
+              </Modal.Title>
+            </Col>
+          </Row>
         </Modal.Header>
         <Modal.Body>
           {Object.keys(orderViewDetail).length ? (
@@ -1169,6 +1424,7 @@ const OrderListScreen = ({ history }) => {
                       <strong>Address:</strong>{' '}
                       {orderViewDetail.shippingAddress.address},{' '}
                       {orderViewDetail.shippingAddress.city}{' '}
+                      {orderViewDetail.shippingAddress.province},{' '}
                       {orderViewDetail.shippingAddress.postalCode},{' '}
                       {orderViewDetail.shippingAddress.country}
                     </p>
@@ -1221,7 +1477,7 @@ const OrderListScreen = ({ history }) => {
                         {orderViewDetail.orderItems.map((item, index) => (
                           <ListGroup.Item key={index}>
                             <Row>
-                              <Col md={1}>
+                              <Col xs={3} md={1}>
                                 <Image
                                   src={item.image}
                                   alt={item.name}
@@ -1229,12 +1485,12 @@ const OrderListScreen = ({ history }) => {
                                   rounded
                                 />
                               </Col>
-                              <Col>
+                              <Col xs={4}>
                                 <Link to={`/product/${item.product}`}>
                                   {item.name}
                                 </Link>
                               </Col>
-                              <Col md={4}>
+                              <Col xs={5} md={4}>
                                 {item.qty} x{' '}
                                 <span className='currency'>
                                   {Math.round(item.price).toFixed(2)}{' '}
@@ -1383,9 +1639,14 @@ const OrderListScreen = ({ history }) => {
                           <Button
                             type='button'
                             className='btn btn-block'
-                            // onClick={deliverHandler}
+                            onClick={deliveredHandler}
                           >
-                            <i className='fas fa-truck'></i> Mark As Delivered
+                            {derliverLoading ? (
+                              <Spinner size='sm' animation='border' />
+                            ) : (
+                              <i className='fas fa-truck'></i>
+                            )}{' '}
+                            Mark As Delivered
                           </Button>
                         </ListGroup.Item>
                       )}
@@ -1395,6 +1656,8 @@ const OrderListScreen = ({ history }) => {
                         'to deliver' &&
                       orderViewDetail.orderStatus.toLowerCase() !==
                         'cancelled' &&
+                      orderViewDetail.orderStatus.toLowerCase() !==
+                        'returned' &&
                       !orderViewDetail.isDelivered &&
                       orderViewDetail.orderStatus.toLowerCase() !==
                         'completed' && (
@@ -1419,7 +1682,9 @@ const OrderListScreen = ({ history }) => {
                       orderViewDetail.orderStatus.toLowerCase() !==
                         'completed' &&
                       orderViewDetail.orderStatus.toLowerCase() !==
-                        'cancelled' && (
+                        'cancelled' &&
+                      orderViewDetail.orderStatus.toLowerCase() !==
+                        'returned' && (
                         <>
                           {' '}
                           <ListGroup.Item>
@@ -1427,7 +1692,7 @@ const OrderListScreen = ({ history }) => {
                               type='button'
                               className='btn btn-block'
                               size='md'
-                              // onClick={deliverHandler}
+                              onClick={returnHandler}
                             >
                               <i className='fas fa-undo-alt'></i> Return Oder
                             </Button>
@@ -1445,7 +1710,7 @@ const OrderListScreen = ({ history }) => {
                               type='button'
                               className='btn btn-block'
                               size='md'
-                              // onClick={deliverHandler}
+                              onClick={removeHandler}
                             >
                               <i className='fas fa-trash'></i> Remove Order
                             </Button>
@@ -1462,13 +1727,6 @@ const OrderListScreen = ({ history }) => {
             <></>
           )}
         </Modal.Body>
-        {/* <Modal.Footer>
-          {showClose && (
-            <Button onClick={() => setOrderViewModal(false)}>
-              {closeText}
-            </Button>
-          )}
-        </Modal.Footer> */}
       </Modal>
       {/* Order View Modal END */}
 
@@ -1479,7 +1737,15 @@ const OrderListScreen = ({ history }) => {
         size={'md'}
         aria-labelledby='contained-modal-title-vcenter'
         centered
-        onHide={() => setShippingModal(false)}
+        onHide={() => {
+          setCourierName('')
+          setCourierOrderNo('')
+          setCourierOrderNo('')
+          setCourierTrackingNo('')
+          setCourierRate('')
+          setProcessingRemarks('')
+          setShippingModal(false)
+        }}
       >
         <Modal.Header closeButton={true}>
           <Modal.Title id='contained-modal-title-vcenter'>
@@ -1507,7 +1773,7 @@ const OrderListScreen = ({ history }) => {
                     <Form.Control
                       onChange={(e) => setCourierOrderNo(e.target.value)}
                       required
-                      pattern='^[0-9]$'
+                      pattern='[0-9]+'
                     />
                   </Form.Group>
                   <Form.Group>
@@ -1524,6 +1790,7 @@ const OrderListScreen = ({ history }) => {
                     <Form.Control
                       onChange={(e) => setCourierRate(e.target.value)}
                       required
+                      pattern='\d{2,9}'
                     />
                   </Form.Group>
                   <Form.Group>
@@ -1544,14 +1811,24 @@ const OrderListScreen = ({ history }) => {
             )}
 
             {courierOrderNo && courierTrackingNo && (
-              <Button type='submit' disabled={!courierRate}>
-                {orderUpdateLoading ? (
-                  <Spinner size='sm' animation='border' />
-                ) : (
-                  <i className='fas fa-truck-loading'></i>
-                )}{' '}
-                Save Delivery
-              </Button>
+              <>
+                <Form.Group>
+                  <Form.Text>
+                    <strong>Note:</strong>
+                    Saving Delivery info assumes that orders was successfuly
+                    handed to selected courier and will automatically update the
+                    invetory.
+                  </Form.Text>
+                </Form.Group>
+                <Button type='submit' disabled={!courierRate}>
+                  {orderUpdateLoading ? (
+                    <Spinner size='sm' animation='border' />
+                  ) : (
+                    <i className='fas fa-truck-loading'></i>
+                  )}{' '}
+                  Save Delivery
+                </Button>
+              </>
             )}
           </Form>
         </Modal.Body>
@@ -1601,6 +1878,72 @@ const OrderListScreen = ({ history }) => {
         </Modal.Body>
       </Modal>
       {/* Send for Shipping Modal End */}
+
+      {/* Returned Modal START*/}
+      <Modal
+        //   {...props}
+        show={returnedModal}
+        size={'md'}
+        aria-labelledby='contained-modal-title-vcenter'
+        centered
+        onHide={() => setReturnedModal(false)}
+      >
+        <Modal.Header closeButton={true}>
+          <Modal.Title id='contained-modal-title-vcenter'>
+            <i className='fas fa-undo-alt'></i> Return to Seller
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={returnedSubmitHandler}>
+            <Form.Group>
+              <Form.Label>Remarks(Optional)</Form.Label>
+              <Form.Control
+                as='textarea'
+                onChange={(e) => setReturnedRemarks(e.target.value)}
+              />
+            </Form.Group>
+
+            <Button type='submit'>
+              {orderUpdateLoading ? (
+                <Spinner size='sm' animation='border' />
+              ) : (
+                <i className='fas fa-save'></i>
+              )}{' '}
+              Save Returned Remarks
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+      {/* Returned Modal END */}
+
+      {/* Delete Modal START*/}
+      <Modal
+        //   {...props}
+        show={deleteModal}
+        size={'md'}
+        aria-labelledby='contained-modal-title-vcenter'
+        centered
+        onHide={() => setDeleteModal(false)}
+      >
+        <Modal.Header closeButton={true}>
+          <Modal.Title id='contained-modal-title-vcenter'>
+            <i className='fas fa-trash'></i> Delete Order?
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <strong>ID:</strong> {orderViewDetail._id}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant='primary' onClick={removeConfirmationHandler}>
+            {orderDeleteLoading ? (
+              <Spinner size='sm' animation='border' />
+            ) : (
+              <i className='fas fa-check'></i>
+            )}{' '}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      {/* Delete Modal END */}
     </>
   )
 }

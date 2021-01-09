@@ -18,13 +18,20 @@ import UserEditScreen from './screens/UserEditScreen'
 import ProductListScreen from './screens/ProductListScreen'
 import ProductEditScreen from './screens/ProductEditScreen'
 import OrderListScreen from './screens/OrderListScreen'
+import PrivacyScreen from './screens/PrivacyScreen'
+import HelpScreen from './screens/HelpScreen'
+import ScrollToTop from './components/ScrollToTop'
+// import TestScreen from './screens/TestScreen'
 
 const App = () => {
   return (
     <Router>
       <Header />
-      <main className='py-3'>
+      <main className='main-wrap py-3'>
         <Container>
+          <ScrollToTop />
+          <Route path='/privacy-policy' component={PrivacyScreen} />
+          <Route path='/help' component={HelpScreen} />
           <Route path='/order/:id' component={OrderScreen} />
           <Route path='/shipping' component={ShippingScreen} />
           <Route path='/payment' component={PaymentScreen} />

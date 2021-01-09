@@ -11,6 +11,7 @@ const ShippingScreen = ({ history }) => {
 
   const [address, setAddress] = useState(shippingAddress.address)
   const [city, setCity] = useState(shippingAddress.city)
+  const [province, setProvince] = useState(shippingAddress.province)
   const [postalCode, setPostalCode] = useState(shippingAddress.postalCode)
   const [country, setCountry] = useState(shippingAddress.country)
   const [landMark, setlandMark] = useState(shippingAddress.landMark)
@@ -20,7 +21,14 @@ const ShippingScreen = ({ history }) => {
   const submitHandler = (e) => {
     e.preventDefault()
     dispatch(
-      saveShippingAddress({ address, city, postalCode, country, landMark })
+      saveShippingAddress({
+        address,
+        city,
+        province,
+        postalCode,
+        country,
+        landMark,
+      })
     )
     history.push('/payment')
   }
@@ -49,6 +57,17 @@ const ShippingScreen = ({ history }) => {
             value={city}
             required
             onChange={(e) => setCity(e.target.value)}
+          ></Form.Control>
+        </Form.Group>
+
+        <Form.Group controlId='province'>
+          <Form.Label>Province</Form.Label>
+          <Form.Control
+            type='text'
+            placeholder='Enter province'
+            value={province}
+            required
+            onChange={(e) => setProvince(e.target.value)}
           ></Form.Control>
         </Form.Group>
 

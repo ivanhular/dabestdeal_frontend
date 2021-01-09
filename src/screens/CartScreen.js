@@ -32,63 +32,77 @@ const CartScreen = ({ match, location, history }) => {
   return (
     <Row>
       <Col md={8}>
-        <h1>Shopping Cart</h1>
+        <h1>
+          <i className='fas fa-cart-arrow-down'></i> Shopping Cart
+        </h1>
         {cartItems.length === 0 ? (
           <Message>
-            Your cart is empty <Link to='/'>Go Back</Link>
+            Your cart is empty{' '}
+            <Link to='/'>
+              {' '}
+              <i className='fas fa-store'></i> Go Back
+            </Link>
           </Message>
         ) : (
           <ListGroup variant='flush'>
             {cartItems.map((item) => (
               <ListGroup.Item key={item.product}>
                 <Row>
-                  <Col md={2}>
+                  <Col xs={3} md={2}>
                     <Image src={item.image} alt={item.name} fluid rounded />
                   </Col>
-                  <Col md={3}>
-                    <Link to={`/product/${item.product}`}>{item.name}</Link>
-                  </Col>
-                  <Col md={2}>₱{item.price}</Col>
-                  <Col md={2}>
-                    <Form.Control
-                      as='select'
-                      value={item.qty}
-                      onChange={(e) =>
-                        dispatch(
-                          addToCart(item.product, Number(e.target.value))
-                        )
-                      }
-                    >
-                      {[...Array(item.countInStock).keys()].map((x) => (
-                        <option key={x + 1} value={x + 1}>
-                          {x + 1}
-                        </option>
-                      ))}
-                    </Form.Control>
-                  </Col>
-                  <Col md={2}>
-                    <Button
-                      type='button'
-                      variant='light'
-                      onClick={() => removeFromCartHandler(item.product)}
-                    >
-                      <i className='fas fa-trash'></i>
-                    </Button>
+                  <Col xs={9}>
+                    <Row>
+                      <Col xs={7} md={3}>
+                        <Link to={`/product/${item.product}`}>{item.name}</Link>
+                      </Col>
+                      <Col xs={3} md={2}>
+                        ₱{item.price}
+                      </Col>
+                      <Col xs={5} md={2}>
+                        <Form.Control
+                          as='select'
+                          value={item.qty}
+                          onChange={(e) =>
+                            dispatch(
+                              addToCart(item.product, Number(e.target.value))
+                            )
+                          }
+                        >
+                          {[...Array(item.countInStock).keys()].map((x) => (
+                            <option key={x + 1} value={x + 1}>
+                              {x + 1}
+                            </option>
+                          ))}
+                        </Form.Control>
+                      </Col>
+                      <Col xs={2} md={2}>
+                        <Button
+                          type='button'
+                          variant='light'
+                          onClick={() => removeFromCartHandler(item.product)}
+                        >
+                          <i className='fas fa-trash'></i>
+                        </Button>
+                      </Col>
+                    </Row>
                   </Col>
                 </Row>
               </ListGroup.Item>
             ))}
           </ListGroup>
         )}
-        <ListGroup variant='flush'>
-          <ListGroup.Item>
-            <Link to='/'>
-              <Button type='button' size='md'>
-                Continue Shopping
-              </Button>
-            </Link>
-          </ListGroup.Item>
-        </ListGroup>
+        {cartItems.length > 0 && (
+          <ListGroup variant='flush'>
+            <ListGroup.Item>
+              <Link to='/'>
+                <Button type='button' size='md'>
+                  <i className='fas fa-store'></i> Continue Shopping
+                </Button>
+              </Link>
+            </ListGroup.Item>
+          </ListGroup>
+        )}
       </Col>
       <Col md={4}>
         <Card>

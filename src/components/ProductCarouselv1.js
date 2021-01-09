@@ -5,6 +5,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import Loader from './Loader'
 import Message from './Message'
 import { listFeaturedProducts } from '../actions/productActions'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import SwiperCore, { EffectFade } from 'swiper'
+import 'swiper/swiper.scss'
+import 'swiper/components/effect-fade/effect-fade.scss'
+
+SwiperCore.use([EffectFade])
 
 const ProductCarousel = () => {
   const dispatch = useDispatch()
@@ -21,11 +27,19 @@ const ProductCarousel = () => {
   ) : error ? (
     <Message variant='danger'>{error}</Message>
   ) : (
-    <Carousel pause='hover' className='bg-dark' fade>
+    <Swiper
+      effect='fade'
+      spaceBetween={50}
+      slidesPerView={1}
+      onSlideChange={() => console.log('slide change')}
+      onSwiper={(swiper) => console.log(swiper)}
+      autoplay={true}
+      // loop={true}
+    >
       {products.map(
         (product) =>
           product.isFeatured && (
-            <Carousel.Item key={product._id}>
+            <SwiperSlide key={product._id}>
               <Link to={`/product/${product._id}`}>
                 <Image
                   src={
@@ -33,19 +47,18 @@ const ProductCarousel = () => {
                       ? product.images.find((image) => image.isBannerImage).url
                       : ''
                   }
-                  style={{ margin: '0 0 20px 0' }}
                   fluid
                 />
-                <Carousel.Caption className='carousel-caption'>
+                <div className='carousel-caption'>
                   <h2>
                     {product.name} (₱{product.price})
                   </h2>
-                </Carousel.Caption>
+                </div>
               </Link>
-            </Carousel.Item>
+            </SwiperSlide>
           )
       )}
-    </Carousel>
+    </Swiper>
   )
 }
 

@@ -9,6 +9,7 @@ import {
   productUpdateReducer,
   productReviewCreateReducer,
   productTopRatedReducer,
+  productFeaturedReducer,
 } from './reducers/productReducers'
 import { segmentListReducer } from './reducers/segmentReducers'
 import {
@@ -29,6 +30,7 @@ import {
 import {
   orderCreateReducer,
   orderUpdateReducer,
+  orderDeleteReducer,
   orderDetailsReducer,
   orderPayReducer,
   orderDeliverReducer,
@@ -46,6 +48,7 @@ const reducer = combineReducers({
   productUpdate: productUpdateReducer,
   productReviewCreate: productReviewCreateReducer,
   productTopRated: productTopRatedReducer,
+  productFeatured: productFeaturedReducer,
   segmentList: segmentListReducer,
   categoryList: categoryListReducer,
   categoryAddedSegment: addSegmentReducer,
@@ -60,6 +63,7 @@ const reducer = combineReducers({
   userUpdate: userUpdateReducer,
   orderCreate: orderCreateReducer,
   orderUpdate: orderUpdateReducer,
+  orderDelete: orderDeleteReducer,
   orderDetails: orderDetailsReducer,
   orderPay: orderPayReducer,
   orderDeliver: orderDeliverReducer,

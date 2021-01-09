@@ -1,3 +1,18 @@
+@import 'mixins';
+
+$pcolor: #258085;
+$scolor: #6db0a7;
+$w: #fff;
+$b: #000;
+$gray: #333;
+
+a {
+  text-decoration: none;
+  &:hover {
+    text-decoration: none;
+  }
+}
+
 main {
   min-height: 80vh;
 }
@@ -27,24 +42,27 @@ h2 {
   display: flex;
 }
 .carousel-caption {
-  position: absolute;
-  top: 0;
+  position: relative;
+  text-align: center;
+  left: 0;
+  // top: 0;
 }
 
 .carousel-caption h2 {
   color: #fff;
 }
 
-.carousel img {
-  height: 300px;
-  padding: 30px;
-  margin: 40px;
-  border-radius: 50%;
-}
+// .carousel img {
+//   height: 300px;
+//   padding: 50px;
+//   margin: 0;
+//   border-radius: 50%;
+// }
 .carousel a {
   margin: 0 auto;
 }
 
+// Login
 .separator {
   display: flex;
   align-items: center;
@@ -74,11 +92,27 @@ button.kep-login-facebook.metro {
     Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji',
     'Segoe UI Emoji', 'Segoe UI Symbol';
 }
+
 /*Overrides*/
+
+//main
+.main-wrap {
+  margin-top: 9.4375rem;
+}
+
 .container {
   max-width: 1600px;
 }
 /* Orders */
+.order-modal,
+.order-view__modal {
+  .modal-dialog {
+    @include max(991px) {
+      width: 100%;
+      max-width: none;
+    }
+  }
+}
 .order__wrapper {
   .actions__wrapper {
     display: flex;
@@ -136,6 +170,9 @@ button.kep-login-facebook.metro {
     opacity: 0;
     transition: all 400ms;
   }
+  .name {
+    text-transform: uppercase;
+  }
 }
 .table-responsive {
   min-height: 500px;
@@ -164,10 +201,10 @@ button.kep-login-facebook.metro {
     }
   }
   &.completed {
-    background-color: rgba(30, 224, 172, 0.15);
-    color: #1ee0ac;
+    background-color: rgba(30, 224, 172, 0.9);
+    color: #fff;
     &::before {
-      background-color: #1ee0ac;
+      background-color: #00ffbb;
     }
   }
   &.cancelled {
@@ -182,6 +219,13 @@ button.kep-login-facebook.metro {
     color: rgba(20, 146, 248, 1);
     &::before {
       background-color: rgba(20, 146, 248, 1);
+    }
+  }
+  &.returned {
+    background-color: rgba(255, 133, 19, 0.637);
+    color: rgb(253, 253, 253);
+    &::before {
+      background-color: rgba(255, 133, 19, 1);
     }
   }
   &:before {
@@ -213,7 +257,7 @@ button.kep-login-facebook.metro {
     margin-bottom: 0;
   }
 }
-.order-search-btn {
+.product-search-btn {
   position: relative;
   button {
     position: absolute;
@@ -326,4 +370,308 @@ strong {
   z-index: 3;
   color: #fff;
   opacity: 0;
+}
+.order-search-wrapper {
+  padding: 0;
+  .form-group {
+    height: 100%;
+    input {
+      height: 100%;
+    }
+  }
+}
+.order-search-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  padding: 10px;
+  background: none;
+  &.btn-primary {
+    color: #000;
+    &:hover,
+    &:focus,
+    &:active {
+      background: none;
+      border: 0;
+      box-shadow: none;
+    }
+  }
+}
+.date-wrapper {
+  &:hover {
+    .clearDate {
+      opacity: 1;
+    }
+  }
+}
+.clearDate {
+  position: absolute;
+  right: 20px;
+  top: 5px;
+  opacity: 0;
+  transition: all 400ms;
+  text-decoration: none;
+}
+
+/**Header**/
+.navbar {
+  display: block;
+  background: $w;
+  border-bottom: 1px solid rgba($gray, 0.1);
+  position: fixed;
+  top: 0;
+  z-index: 999;
+  width: 100%;
+  padding: 10px 0;
+  // box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+  //   0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+}
+.top-bar {
+  color: $pcolor;
+  .container {
+    justify-content: flex-end;
+  }
+  .social-wrap {
+    display: flex;
+    align-items: center;
+    // text-transform: capitalize;
+  }
+  ul {
+    display: inline-flex;
+    list-style-type: none;
+    margin-bottom: 0;
+    font-size: 20px;
+    padding-left: 10px;
+    li {
+      line-height: 1;
+    }
+  }
+}
+.bottom-bar {
+  // margin-top: 20px;
+}
+.logo-wrap {
+  img {
+    max-width: 100px;
+    display: none;
+    &.desktop-logo {
+      @include min(992px) {
+        display: block;
+      }
+    }
+    &.mobile-logo {
+      max-width: 50px;
+      @include max(991px) {
+        display: block;
+      }
+    }
+  }
+}
+.navbar-dark .navbar-nav .nav-link {
+  color: $b;
+  @include max(991px) {
+    text-align: center;
+  }
+  &.active,
+  &:hover,
+  &:active,
+  &:focus {
+    color: $pcolor;
+  }
+}
+.nav-item {
+  @include max(991px) {
+    margin-right: 0;
+  }
+}
+.btn-outline-success {
+  border-color: $scolor;
+  &:hover {
+    background: $pcolor;
+    border-color: $pcolor;
+  }
+}
+.main-search-wrap {
+  position: relative;
+  padding: 0;
+  width: 60%;
+  @include max(991px) {
+    width: 100%;
+  }
+  .form-control:focus {
+    border: 0;
+    box-shadow: none;
+  }
+  input {
+    width: 100%;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.09);
+    background: $w;
+    width: 100%;
+    margin: 0;
+    min-width: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.09);
+  }
+  button {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    background: $pcolor;
+    border: 0;
+    color: $w;
+    width: 80px;
+    font-size: 18px;
+  }
+}
+
+// Home feature
+.carousel {
+  background: $pcolor;
+  img {
+    height: auto;
+    padding: 30px;
+    margin: 40px;
+    border-radius: 0;
+    /* border-radius: 50%; */
+  }
+}
+
+// Later Products
+.latest-product-wrap {
+  margin-top: 100px;
+}
+.heading {
+  text-align: center;
+  &:after {
+    content: '';
+    width: 100px;
+    height: 5px;
+    background: $scolor;
+    display: block;
+    margin: 10px auto;
+  }
+}
+.product-item {
+  box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+  border: 0;
+  position: relative;
+  transition: all 400ms ease;
+  top: 0;
+  &:hover {
+    top: -10px;
+    transition: all 400ms ease;
+  }
+}
+
+//footer
+footer {
+  padding: 50px 0 0;
+  background: #e7dfd5;
+}
+.footer-top {
+  ul {
+    padding-left: 0;
+    width: 100%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    img {
+      max-width: 70px;
+    }
+  }
+  li {
+    text-align: center;
+    list-style: none;
+    img {
+      // max-width: 100px;
+      margin: 10px auto;
+      margin: 5px;
+    }
+    a {
+      font-size: 20px;
+    }
+  }
+}
+.footer-col-title {
+  text-align: center;
+  font-weight: 700;
+  color: $pcolor;
+}
+.footer-bottom {
+  font-size: 12px;
+  a {
+    color: $scolor;
+  }
+}
+
+//checkout
+.stepper {
+  .step-no {
+    background: #f5f5f5;
+    color: $w;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    margin: 0 auto;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    &.active {
+      background: $pcolor;
+    }
+  }
+}
+
+//Mobile
+.navbar-dark .navbar-toggler {
+  background: $pcolor;
+  color: $w;
+  border-radius: 3px;
+}
+
+//Order Screen
+.order-screen-id {
+  @include max(500px) {
+    font-size: 20px;
+  }
+}
+
+.review-list {
+  &:hover {
+    .product-action-wrap {
+      opacity: 1;
+    }
+  }
+}
+.product-action-wrap {
+  opacity: 0;
+  transition: all 400ms;
+
+  a {
+    margin-right: 10px;
+  }
+}
+
+.reviews-wrap {
+  margin-top: 50px;
+}
+.slick-dots {
+  bottom: 0 !important;
+  position: relative !important;
+  li {
+    width: 60px !important;
+    height: 60px !important;
+  }
+}
+
+.help-item {
+  .card-header {
+    cursor: pointer;
+    h2 {
+      text-decoration: none;
+      @include font-size(12px, 14px, 500px, 1440px);
+    }
+  }
 }

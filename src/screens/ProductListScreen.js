@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { LinkContainer } from 'react-router-bootstrap'
-import { Table, Button, Row, Col } from 'react-bootstrap'
+import { Table, Button, Row, Col, Badge } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
@@ -129,7 +129,21 @@ const ProductListScreen = ({ history, match }) => {
                     )}
                   </td>
                   {/* <td>{product._id}</td> */}
-                  <td>{product.name}</td>
+                  <td>
+                    {product.name}{' '}
+                    {product.reviews.reduce(
+                      (acc, review) => (!review.isReviewed ? acc + 1 : acc),
+                      0
+                    ) > 0 && (
+                      <Badge pill variant='warning'>
+                        {product.reviews.reduce(
+                          (acc, review) => (!review.isReviewed ? acc + 1 : acc),
+                          0
+                        )}{' '}
+                        new reviews
+                      </Badge>
+                    )}
+                  </td>
                   <td>₱{product.price}</td>
                   <td>{product.segment && product.segment.name}</td>
                   <td>{product.category && product.category.name}</td>

@@ -16,7 +16,8 @@ const RegisterScreen = ({ location, history }) => {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [message, setMessage] = useState(null)
-
+  const [checkPassword, setCheckPassword] = useState(false)
+  const [checkConfirmPassword, setCheckConfirmPassword] = useState(false)
   const dispatch = useDispatch()
 
   const userRegister = useSelector((state) => state.userRegister)
@@ -36,7 +37,9 @@ const RegisterScreen = ({ location, history }) => {
       setMessage('Passwords do not match')
     } else {
       setMessage('')
-      dispatch(register({ firstName, lastName, phone, email, password }))
+      dispatch(
+        register({ firstName, middleName, lastName, phone, email, password })
+      )
     }
   }
 
@@ -51,9 +54,10 @@ const RegisterScreen = ({ location, history }) => {
           <Form.Label>First Name</Form.Label>
           <Form.Control
             type='firstname'
-            placeholder='Enter First name'
+            placeholder='Enter First name(required)'
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
+            required
           ></Form.Control>
         </Form.Group>
         <Form.Group controlId='first'>
@@ -66,12 +70,13 @@ const RegisterScreen = ({ location, history }) => {
           ></Form.Control>
         </Form.Group>
         <Form.Group controlId='lastname'>
-          <Form.Label>Last Name</Form.Label>
+          <Form.Label>Last Name(required)</Form.Label>
           <Form.Control
             type='lastname'
             placeholder='Enter Last name'
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
+            required
           ></Form.Control>
         </Form.Group>
 
@@ -79,40 +84,79 @@ const RegisterScreen = ({ location, history }) => {
           <Form.Label>Email Address</Form.Label>
           <Form.Control
             type='email'
-            placeholder='Enter email'
+            placeholder='Enter email(required)'
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           ></Form.Control>
         </Form.Group>
 
         <Form.Group controlId='phone'>
           <Form.Label>Phone Number</Form.Label>
           <Form.Control
-            type='phone'
-            placeholder='Enter Phone'
+            type='tel'
+            pattern='^(09|\+639)\d{9}$'
+            placeholder='Enter Phone e.g 09123456789 (required)'
             value={phone}
+            required
             onChange={(e) => setPhone(e.target.value)}
           ></Form.Control>
         </Form.Group>
 
         <Form.Group controlId='password'>
           <Form.Label>Password</Form.Label>
-          <Form.Control
-            type='password'
-            placeholder='Enter password'
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          ></Form.Control>
+          <div style={{ position: 'relative' }}>
+            <Form.Control
+              type={checkPassword ? 'text' : 'password'}
+              placeholder='Enter password'
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            ></Form.Control>
+            <a
+              onClick={(e) => {
+                e.preventDefault()
+                setCheckPassword(!checkPassword)
+              }}
+              style={{
+                position: 'absolute',
+                right: '20px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+              }}
+            >
+              <i className={`fas fa-eye${!checkPassword ? '-slash' : ''}`}></i>
+            </a>
+          </div>
         </Form.Group>
 
         <Form.Group controlId='confirmPassword'>
           <Form.Label>Confirm Password</Form.Label>
-          <Form.Control
-            type='password'
-            placeholder='Confirm password'
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          ></Form.Control>
+          <div style={{ position: 'relative' }}>
+            <Form.Control
+              type={checkConfirmPassword ? 'text' : 'password'}
+              placeholder='Confirm password'
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            ></Form.Control>
+            <a
+              onClick={(e) => {
+                e.preventDefault()
+                setCheckConfirmPassword(!checkConfirmPassword)
+              }}
+              style={{
+                position: 'absolute',
+                right: '20px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+              }}
+            >
+              <i
+                className={`fas fa-eye${!checkConfirmPassword ? '-slash' : ''}`}
+              ></i>
+            </a>
+          </div>
         </Form.Group>
 
         <Button type='submit' variant='primary'>

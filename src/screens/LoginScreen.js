@@ -14,6 +14,7 @@ const LoginScreen = ({ location, history }) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [phone, setPhone] = useState('')
+  const [checkConfirmPassword, setCheckConfirmPassword] = useState(false)
 
   const dispatch = useDispatch()
 
@@ -52,13 +53,14 @@ const LoginScreen = ({ location, history }) => {
   useEffect(() => {
     if (userInfo) {
       history.push(redirect)
-    }
-    if (isFacebookButtonClicked) {
-      if (userExist) {
-        dispatch(login(data.email))
-      } else {
-        // console.log(data)
-        dispatch({ type: MODAL_OPEN })
+    } else {
+      if (isFacebookButtonClicked) {
+        if (userExist) {
+          dispatch(login(data.email))
+        } else {
+          // console.log(data)
+          dispatch({ type: MODAL_OPEN })
+        }
       }
     }
   }, [
@@ -105,11 +107,7 @@ const LoginScreen = ({ location, history }) => {
   }
   return (
     <>
-      <CenteredModal
-        size='md'
-        title='Enter Your Phone Number'
-        showClose={false}
-      >
+      <CenteredModal size='md' title='Enter Phone Number' showClose={false}>
         <Form onSubmit={onSubmitFacebookLogin}>
           <Form.Group controlId='formPhone'>
             {/* <Form.Label>Phone Number</Form.Label> */}
@@ -121,12 +119,12 @@ const LoginScreen = ({ location, history }) => {
               onChange={(e) => setPhone(e.target.value)}
             />
           </Form.Group>
-          <Button variant='primary' type='submit'>
+          <Button variant='primary' type='submit' size='sm'>
             Submit
           </Button>
         </Form>
       </CenteredModal>
-      <FormContainer>
+      <FormContainer fluid='sm'>
         <h1>Sign In</h1>
         {error && <Message variant='danger'>{error}</Message>}
         {loading && <Loader />}
@@ -143,12 +141,33 @@ const LoginScreen = ({ location, history }) => {
 
           <Form.Group controlId='password'>
             <Form.Label>Password</Form.Label>
-            <Form.Control
-              type='password'
-              placeholder='Enter password'
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            ></Form.Control>
+            <div style={{ position: 'relative' }}>
+              <Form.Control
+                type={checkConfirmPassword ? 'text' : 'password'}
+                placeholder='Enter password'
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              ></Form.Control>
+              <a
+                onClick={(e) => {
+                  e.preventDefault()
+                  setCheckConfirmPassword(!checkConfirmPassword)
+                }}
+                style={{
+                  position: 'absolute',
+                  right: '20px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                }}
+              >
+                <i
+                  className={`fas fa-eye${
+                    !checkConfirmPassword ? '-slash' : ''
+                  }`}
+                ></i>
+              </a>
+            </div>
           </Form.Group>
 
           <Button type='submit' variant='primary' size='md' block>
@@ -158,9 +177,13 @@ const LoginScreen = ({ location, history }) => {
           <FacebookLogin
             appId='1068718970238644'
             // autoLoad={true}
+            autoLoad={false}
             fields='name,email,picture'
             scope='public_profile,email'
             callback={responseFacebook}
+            disableMobileRedirect={true}
+            isMobile={false}
+            redirectUri={'https://89576d3fa845.ngrok.io'}
             icon='fa-facebook'
           />
         </Form>

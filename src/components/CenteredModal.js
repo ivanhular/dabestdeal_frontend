@@ -11,6 +11,7 @@ const CenteredModal = ({
   closeText = 'close',
   showClose,
   closeButton,
+  className,
 }) => {
   const dispatch = useDispatch()
   const { modal } = useSelector((state) => state.appSettings)
@@ -23,6 +24,7 @@ const CenteredModal = ({
       aria-labelledby='contained-modal-title-vcenter'
       centered
       onHide={onHide}
+      className={className}
     >
       <Modal.Header closeButton={closeButton}>
         <Modal.Title id='contained-modal-title-vcenter'>{title}</Modal.Title>

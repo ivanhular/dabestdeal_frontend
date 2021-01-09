@@ -1,11 +1,12 @@
 import axios from 'axios'
 import React, { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { Form, Button, Card, Image, Col, Row } from 'react-bootstrap'
+import { Form, Button, Card, Image, Col, Row, ListGroup } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
 import FormContainer from '../components/FormContainer'
+import Rating from '../components/Rating'
 import { listProductDetails, updateProduct } from '../actions/productActions'
 import { listSegments } from '../actions/segmentActions'
 import {
@@ -58,6 +59,7 @@ const ProductEditScreen = ({ match, history }) => {
   const [category, setCategory] = useState([])
   const [countInStock, setCountInStock] = useState(0)
   const [description, setDescription] = useState('')
+  const [reviews, setReviews] = useState([])
   const [dataLoaded, setDataLoaded] = useState(false)
 
   useEffect(() => {
@@ -85,16 +87,17 @@ const ProductEditScreen = ({ match, history }) => {
           setIsFeatured(product.isFeatured)
           setCountInStock(product.countInStock)
           setDescription(product.description)
+          setReviews(product.reviews)
           setDataLoaded(true)
         }
-        console.log(uploadedImages)
-        // if (product.images !== uploadedImages) {
-        //   console.log('not ')
-        // }
+        // console.log(uploadedImages)
+        // // if (product.images !== uploadedImages) {
+        // //   console.log('not ')
+        // // }
       }
     }
   }, [
-    uploadedImages,
+    // uploadedImages,
     dataLoaded,
     dispatch,
     history,
@@ -116,9 +119,10 @@ const ProductEditScreen = ({ match, history }) => {
     const checkCategory = checkOptions(category)
 
     const config = {
+      withCredentials: true,
       headers: {
         'Content-Type': 'multipart/form-data',
-        Authorization: `Bearer ${userInfo.token}`,
+        // Authorization: `Bearer ${userInfo.token}`,
       },
     }
 
@@ -159,7 +163,7 @@ const ProductEditScreen = ({ match, history }) => {
 
       if (checkSegment && checkCategory) {
         //check segment && category is defined before dispatch
-        // dispatch(addSegmentToCategory(checkCategory.id, checkSegment.id))
+        dispatch(addSegmentToCategory(checkCategory.id, checkSegment.id))
       }
 
       dispatch(
@@ -175,6 +179,7 @@ const ProductEditScreen = ({ match, history }) => {
           countInStock,
           status,
           isFeatured,
+          reviews,
         })
       )
 
@@ -189,6 +194,7 @@ const ProductEditScreen = ({ match, history }) => {
         description,
         countInStock,
         status,
+        isFeatured,
       })
     } catch (error) {
       console.log(error.response.message)
@@ -448,6 +454,75 @@ const ProductEditScreen = ({ match, history }) => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Reviews</Form.Label>
+              <Card>
+                <Card.Body>
+                  <ListGroup variant='flush'>
+                    {reviews.length > 0
+                      ? reviews.map((review) => (
+                          <ListGroup.Item
+                            key={review._id}
+                            className='review-list'
+                          >
+                            <Row>
+                              <Col xs={4} style={{ display: 'inline-flex' }}>
+                                {review.isReviewed && (
+                                  <i
+                                    className='fa fa-check'
+                                    aria-hidden='true'
+                                    style={{ color: 'green' }}
+                                  />
+                                )}
+                                {<Rating value={review.rating} />}
+                              </Col>
+                              <Col>
+                                <em>"{review.comment}"</em>
+                              </Col>
+                              <Col className='product-action-wrap'>
+                                <a>
+                                  <i
+                                    className='fa fa-check'
+                                    aria-hidden='true'
+                                    style={{ color: 'green' }}
+                                    onClick={(e) => {
+                                      setReviews(
+                                        reviews.map((r) =>
+                                          r._id === review._id
+                                            ? {
+                                                ...r,
+                                                isReviewed: !review.isReviewed,
+                                              }
+                                            : { ...r }
+                                        )
+                                      )
+                                    }}
+                                  />
+                                </a>
+                                <a
+                                  onClick={(e) =>
+                                    setReviews(
+                                      reviews.filter(
+                                        (r) => r._id !== review._id
+                                      )
+                                    )
+                                  }
+                                >
+                                  <i
+                                    className='fa fa-trash'
+                                    aria-hidden='true'
+                                    style={{ color: 'red' }}
+                                  />
+                                </a>
+                              </Col>
+                            </Row>
+                          </ListGroup.Item>
+                        ))
+                      : 'No reviews yet'}
+                  </ListGroup>
+                </Card.Body>
+              </Card>
             </Form.Group>
 
             <Button type='submit' variant='primary'>

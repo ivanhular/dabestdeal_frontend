@@ -109,7 +109,7 @@ const PlaceOrderScreen = ({ history }) => {
                   {cart.cartItems.map((item, index) => (
                     <ListGroup.Item key={index}>
                       <Row>
-                        <Col md={1}>
+                        <Col xs={3} md={1}>
                           <Image
                             src={item.image}
                             alt={item.name}
@@ -117,12 +117,12 @@ const PlaceOrderScreen = ({ history }) => {
                             rounded
                           />
                         </Col>
-                        <Col>
+                        <Col xs={5}>
                           <Link to={`/product/${item.product}`}>
                             {item.name}
                           </Link>
                         </Col>
-                        <Col md={4}>
+                        <Col xs={4} md={4}>
                           {item.qty} x <span>&#8369;</span>
                           {item.price} = <span>&#8369;</span>
                           {(item.qty * item.price).toFixed(2)}

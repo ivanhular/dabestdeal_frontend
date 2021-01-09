@@ -8,6 +8,8 @@ import {
   ORDER_UPDATE_SUCCESS,
   ORDER_UPDATE_FAIL,
   ORDER_DETAILS_FAIL,
+  ORDER_DELETE_REQUEST,
+  ORDER_DELETE_SUCCESS,
   ORDER_DETAILS_SUCCESS,
   ORDER_DETAILS_REQUEST,
   ORDER_PAY_FAIL,
@@ -31,14 +33,15 @@ export const createOrder = (order) => async (dispatch, getState) => {
       type: ORDER_CREATE_REQUEST,
     })
 
-    const {
-      userLogin: { userInfo },
-    } = getState()
+    // const {
+    //   userLogin: { userInfo },
+    // } = getState()
 
     const config = {
+      withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${userInfo.token}`,
+        // Authorization: `Bearer ${userInfo.token}`,
       },
     }
 
@@ -67,22 +70,50 @@ export const createOrder = (order) => async (dispatch, getState) => {
     })
   }
 }
+export const deleteOrder = (id) => async (dispatch, getState) => {
+  try {
+    dispatch({ type: ORDER_DELETE_REQUEST })
+    // const {
+    //   userLogin: { userInfo },
+    // } = getState()
+    const config = {
+      withCredentials: true,
+      // headers: {
+      //   Authorization: `Bearer ${userInfo.token}`,
+      // },
+    }
 
+    const { data } = await axios.delete(`/api/orders/${id}`, config)
+
+    dispatch({ type: ORDER_DELETE_SUCCESS, payload: data })
+  } catch (error) {
+    const message =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.message
+
+    dispatch({
+      type: ORDER_UPDATE_FAIL,
+      payload: message,
+    })
+  }
+}
 export const updateOrder = (id, order) => async (dispatch, getState) => {
   try {
     dispatch({
       type: ORDER_UPDATE_REQUEST,
     })
 
-    const {
-      userLogin: { userInfo },
-    } = getState()
+    // const {
+    //   userLogin: { userInfo },
+    // } = getState()
 
     const config = {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userInfo.token}`,
-      },
+      withCredentials: true,
+      // headers: {
+      //   'Content-Type': 'application/json',
+      //   Authorization: `Bearer ${userInfo.token}`,
+      // },
     }
 
     const { data } = await axios.patch(`/api/orders/${id}`, order, config)
@@ -112,14 +143,15 @@ export const getOrderDetails = (id) => async (dispatch, getState) => {
       type: ORDER_DETAILS_REQUEST,
     })
 
-    const {
-      userLogin: { userInfo },
-    } = getState()
+    // const {
+    //   userLogin: { userInfo },
+    // } = getState()
 
     const config = {
-      headers: {
-        Authorization: `Bearer ${userInfo.token}`,
-      },
+      withCredentials: true,
+      // headers: {
+      //   Authorization: `Bearer ${userInfo.token}`,
+      // },
     }
 
     const { data } = await axios.get(`/api/orders/${id}`, config)
@@ -152,14 +184,15 @@ export const payOrder = (orderId, paymentResult) => async (
       type: ORDER_PAY_REQUEST,
     })
 
-    const {
-      userLogin: { userInfo },
-    } = getState()
+    // const {
+    //   userLogin: { userInfo },
+    // } = getState()
 
     const config = {
+      withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${userInfo.token}`,
+        // Authorization: `Bearer ${userInfo.token}`,
       },
     }
 
@@ -194,14 +227,15 @@ export const deliverOrder = (order) => async (dispatch, getState) => {
       type: ORDER_DELIVER_REQUEST,
     })
 
-    const {
-      userLogin: { userInfo },
-    } = getState()
+    // const {
+    //   userLogin: { userInfo },
+    // } = getState()
 
     const config = {
-      headers: {
-        Authorization: `Bearer ${userInfo.token}`,
-      },
+      withCredentials: true,
+      // headers: {
+      //   Authorization: `Bearer ${userInfo.token}`,
+      // },
     }
 
     const { data } = await axios.put(
@@ -235,14 +269,15 @@ export const listMyOrders = () => async (dispatch, getState) => {
       type: ORDER_LIST_MY_REQUEST,
     })
 
-    const {
-      userLogin: { userInfo },
-    } = getState()
+    // const {
+    //   userLogin: { userInfo },
+    // } = getState()
 
     const config = {
-      headers: {
-        Authorization: `Bearer ${userInfo.token}`,
-      },
+      withCredentials: true,
+      // headers: {
+      //   Authorization: `Bearer ${userInfo.token}`,
+      // },
     }
 
     const { data } = await axios.get(`/api/orders/myorders`, config)
@@ -266,27 +301,31 @@ export const listMyOrders = () => async (dispatch, getState) => {
   }
 }
 
-export const listOrders = () => async (dispatch, getState) => {
+export const listOrders = (params) => async (dispatch, getState) => {
   try {
     dispatch({
       type: ORDER_LIST_REQUEST,
     })
 
-    const {
-      userLogin: { userInfo },
-    } = getState()
+    // const {
+    //   userLogin: { userInfo },
+    // } = getState()
 
     const config = {
-      headers: {
-        Authorization: `Bearer ${userInfo.token}`,
-      },
+      withCredentials: true,
+      // headers: {
+      //   Authorization: `Bearer ${userInfo.token}`,
+      // },
+      params,
     }
 
-    const { data } = await axios.get(`/api/orders`, config)
+    const {
+      data: { orders },
+    } = await axios.get(`/api/orders`, config)
 
     dispatch({
       type: ORDER_LIST_SUCCESS,
-      payload: data,
+      payload: orders,
     })
   } catch (error) {
     const message =

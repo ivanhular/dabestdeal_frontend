@@ -6,10 +6,13 @@ import './bootstrap.min.css'
 import './index.scss'
 import App from './App'
 import * as serviceWorker from './serviceWorker'
+import SimpleReactLightbox from 'simple-react-lightbox'
 
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <SimpleReactLightbox>
+      <App />
+    </SimpleReactLightbox>
   </Provider>,
   document.getElementById('root')
 )

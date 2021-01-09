@@ -12,9 +12,11 @@ const Meta = ({ title, description, keywords }) => {
 }
 
 Meta.defaultProps = {
-  title: 'Welcome To ProShop',
-  description: 'We sell the best products for cheap',
-  keywords: 'electronics, buy electronics, cheap electroincs',
+  title: 'Welcome To dabestdeal.com',
+  description:
+    'dabestdeal.com is an ecommerce site and company that sells best and quality products for a great price. We also enables customers to post products and help them market it.',
+  keywords:
+    'Couple Accessories, Best Deal Gym Equipments, Space saver Household Supplies, General Merchandise',
 }
 
 export default Meta

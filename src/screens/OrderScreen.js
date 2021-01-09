@@ -4,7 +4,15 @@ import axios from 'axios'
 import moment from 'moment'
 import { PayPalButton } from 'react-paypal-button-v2'
 import { Link } from 'react-router-dom'
-import { Row, Col, ListGroup, Image, Card, Button } from 'react-bootstrap'
+import {
+  Row,
+  Col,
+  ListGroup,
+  Image,
+  Card,
+  Button,
+  Modal,
+} from 'react-bootstrap'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
 
@@ -93,7 +101,7 @@ const OrderScreen = ({ match, history }) => {
     <Message variant='danger'>{error}</Message>
   ) : (
     <>
-      <h1>Order {order._id}</h1>
+      <h1 className='order-screen-id'>Order {order._id}</h1>
       <Row>
         <Col md={8}>
           <ListGroup variant='flush'>
@@ -109,6 +117,7 @@ const OrderScreen = ({ match, history }) => {
               <p>
                 <strong>Address:</strong>
                 {order.shippingAddress.address}, {order.shippingAddress.city}{' '}
+                {order.shippingAddress.province},{' '}
                 {order.shippingAddress.postalCode},{' '}
                 {order.shippingAddress.country}
               </p>
@@ -148,7 +157,7 @@ const OrderScreen = ({ match, history }) => {
                   {order.orderItems.map((item, index) => (
                     <ListGroup.Item key={index}>
                       <Row>
-                        <Col md={1}>
+                        <Col xs={3} md={1}>
                           <Image
                             src={item.image}
                             alt={item.name}
@@ -156,12 +165,12 @@ const OrderScreen = ({ match, history }) => {
                             rounded
                           />
                         </Col>
-                        <Col>
+                        <Col xs={5}>
                           <Link to={`/product/${item.product}`}>
                             {item.name}
                           </Link>
                         </Col>
-                        <Col md={4}>
+                        <Col xs={4} md={4}>
                           {item.qty} x{' '}
                           <span className='currency'>{item.price} </span>{' '}
                           <span className='currency'>

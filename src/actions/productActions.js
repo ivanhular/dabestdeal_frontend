@@ -22,6 +22,9 @@ import {
   PRODUCT_TOP_REQUEST,
   PRODUCT_TOP_SUCCESS,
   PRODUCT_TOP_FAIL,
+  PRODUCT_FEATURED_REQUEST,
+  PRODUCT_FEATURED_SUCCESS,
+  PRODUCT_FEATURED_FAIL,
 } from '../constants/productConstants'
 import { logout } from './userActions'
 
@@ -77,14 +80,15 @@ export const deleteProduct = (id) => async (dispatch, getState) => {
       type: PRODUCT_DELETE_REQUEST,
     })
 
-    const {
-      userLogin: { userInfo },
-    } = getState()
+    // const {
+    //   userLogin: { userInfo },
+    // } = getState()
 
     const config = {
-      headers: {
-        Authorization: `Bearer ${userInfo.token}`,
-      },
+      withCredentials: true,
+      // headers: {
+      //   Authorization: `Bearer ${userInfo.token}`,
+      // },
     }
 
     await axios.delete(`/api/products/${id}`, config)
@@ -113,14 +117,15 @@ export const createProduct = () => async (dispatch, getState) => {
       type: PRODUCT_CREATE_REQUEST,
     })
 
-    const {
-      userLogin: { userInfo },
-    } = getState()
+    // const {
+    //   userLogin: { userInfo },
+    // } = getState()
 
     const config = {
-      headers: {
-        Authorization: `Bearer ${userInfo.token}`,
-      },
+      withCredentials: true,
+      // headers: {
+      //   Authorization: `Bearer ${userInfo.token}`,
+      // },
     }
 
     const { data } = await axios.post(`/api/products`, {}, config)
@@ -150,14 +155,15 @@ export const updateProduct = (product) => async (dispatch, getState) => {
       type: PRODUCT_UPDATE_REQUEST,
     })
 
-    const {
-      userLogin: { userInfo },
-    } = getState()
+    // const {
+    //   userLogin: { userInfo },
+    // } = getState()
 
     const config = {
+      withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${userInfo.token}`,
+        // Authorization: `Bearer ${userInfo.token}`,
       },
     }
 
@@ -199,14 +205,15 @@ export const createProductReview = (productId, review) => async (
       type: PRODUCT_CREATE_REVIEW_REQUEST,
     })
 
-    const {
-      userLogin: { userInfo },
-    } = getState()
+    // const {
+    //   userLogin: { userInfo },
+    // } = getState()
 
     const config = {
+      withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${userInfo.token}`,
+        // Authorization: `Bearer ${userInfo.token}`,
       },
     }
 
@@ -243,6 +250,27 @@ export const listTopProducts = () => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: PRODUCT_TOP_FAIL,
+      payload:
+        error.response && error.response.data.message
+          ? error.response.data.message
+          : error.message,
+    })
+  }
+}
+
+export const listFeaturedProducts = () => async (dispatch) => {
+  try {
+    dispatch({ type: PRODUCT_FEATURED_REQUEST })
+
+    const { data } = await axios.get(`/api/products/featured`)
+
+    dispatch({
+      type: PRODUCT_FEATURED_SUCCESS,
+      payload: data,
+    })
+  } catch (error) {
+    dispatch({
+      type: PRODUCT_FEATURED_FAIL,
       payload:
         error.response && error.response.data.message
           ? error.response.data.message

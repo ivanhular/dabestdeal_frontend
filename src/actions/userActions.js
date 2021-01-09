@@ -93,7 +93,8 @@ export const login = (email, password = '123456') => async (dispatch) => {
   }
 }
 
-export const logout = () => (dispatch) => {
+export const logout = () => async (dispatch) => {
+  const { data } = axios.post('/api/users/logout')
   localStorage.removeItem('userInfo')
   localStorage.removeItem('cartItems')
   localStorage.removeItem('shippingAddress')
@@ -107,6 +108,7 @@ export const logout = () => (dispatch) => {
 
 export const register = ({
   firstName,
+  middleName,
   lastName,
   phone,
   email,
@@ -129,6 +131,7 @@ export const register = ({
       '/api/users',
       {
         firstName,
+        middleName,
         lastName,
         phone,
         email,
@@ -167,14 +170,15 @@ export const getUserDetails = (id) => async (dispatch, getState) => {
       type: USER_DETAILS_REQUEST,
     })
 
-    const {
-      userLogin: { userInfo },
-    } = getState()
+    // const {
+    //   userLogin: { userInfo },
+    // } = getState()
 
     const config = {
-      headers: {
-        Authorization: `Bearer ${userInfo.token}`,
-      },
+      withCredentials: true,
+      // headers: {
+      //   Authorization: `Bearer ${userInfo.token}`,
+      // },
     }
 
     const { data } = await axios.get(`/api/users/${id}`, config)
@@ -204,14 +208,15 @@ export const updateUserProfile = (user) => async (dispatch, getState) => {
       type: USER_UPDATE_PROFILE_REQUEST,
     })
 
-    const {
-      userLogin: { userInfo },
-    } = getState()
+    // const {
+    //   userLogin: { userInfo },
+    // } = getState()
 
     const config = {
+      withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${userInfo.token}`,
+        // Authorization: `Bearer ${userInfo.token}`,
       },
     }
 
@@ -249,14 +254,15 @@ export const listUsers = () => async (dispatch, getState) => {
       type: USER_LIST_REQUEST,
     })
 
-    const {
-      userLogin: { userInfo },
-    } = getState()
+    // const {
+    //   userLogin: { userInfo },
+    // } = getState()
 
     const config = {
-      headers: {
-        Authorization: `Bearer ${userInfo.token}`,
-      },
+      withCredentials: true,
+      // headers: {
+      //   Authorization: `Bearer ${userInfo.token}`,
+      // },
     }
 
     const { data } = await axios.get(`/api/users`, config)
@@ -286,14 +292,15 @@ export const deleteUser = (id) => async (dispatch, getState) => {
       type: USER_DELETE_REQUEST,
     })
 
-    const {
-      userLogin: { userInfo },
-    } = getState()
+    // const {
+    //   userLogin: { userInfo },
+    // } = getState()
 
     const config = {
-      headers: {
-        Authorization: `Bearer ${userInfo.token}`,
-      },
+      withCredentials: true,
+      // headers: {
+      //   Authorization: `Bearer ${userInfo.token}`,
+      // },
     }
 
     await axios.delete(`/api/users/${id}`, config)
@@ -320,14 +327,15 @@ export const updateUser = (user) => async (dispatch, getState) => {
       type: USER_UPDATE_REQUEST,
     })
 
-    const {
-      userLogin: { userInfo },
-    } = getState()
+    // const {
+    //   userLogin: { userInfo },
+    // } = getState()
 
     const config = {
+      withCredentials: true,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${userInfo.token}`,
+        // Authorization: `Bearer ${userInfo.token}`,
       },
     }
 
