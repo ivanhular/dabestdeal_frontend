@@ -184,7 +184,7 @@ const LoginScreen = ({ location, history }) => {
             callback={responseFacebook}
             disableMobileRedirect={true}
             isMobile={false}
-            redirectUri={'https://89576d3fa845.ngrok.io'}
+            redirectUri={'https://dabestdeal.com/'}
             icon='fa-facebook'
           />
         </Form>
