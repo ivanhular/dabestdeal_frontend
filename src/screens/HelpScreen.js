@@ -1,5 +1,5 @@
 import React from 'react'
-import { ListGroup, Accordion, Card, Button, Image } from 'react-bootstrap'
+import { Accordion, Card, Image } from 'react-bootstrap'
 import Step1 from '../assets/step_1_delete.jpg'
 import Step2 from '../assets/step_2_delete.jpg'
 import Step3 from '../assets/step_3_delete.jpg'

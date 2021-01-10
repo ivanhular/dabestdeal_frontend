@@ -7,8 +7,8 @@ import {
   Nav,
   Container,
   NavDropdown,
-  Row,
   Badge,
+  Image,
 } from 'react-bootstrap'
 import SearchBox from './SearchBox'
 import SocialList from './SocialList'
@@ -41,8 +41,8 @@ const Header = () => {
           <Container>
             <LinkContainer to='/'>
               <Navbar.Brand className='logo-wrap'>
-                <img src={logo} className='desktop-logo' />
-                <img src={mobileLogo} className='mobile-logo' />
+                <Image src={logo} className='desktop-logo' />
+                <Image src={mobileLogo} className='mobile-logo' />
               </Navbar.Brand>
             </LinkContainer>
             <Navbar.Toggle aria-controls='basic-navbar-nav' />

@@ -33,7 +33,7 @@ const ProfileScreen = ({ location, history }) => {
   const userDelete = useSelector((state) => state.userDelete)
   const {
     loading: deleteLoading,
-    error: deleteError,
+    // error: deleteError,
     success: deleteSuccess,
   } = userDelete
 
@@ -183,7 +183,8 @@ const ProfileScreen = ({ location, history }) => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   ></Form.Control>
-                  <a
+                  <Button
+                    variant='link'
                     onClick={(e) => {
                       e.preventDefault()
                       setCheckPassword(!checkPassword)
@@ -198,7 +199,7 @@ const ProfileScreen = ({ location, history }) => {
                     <i
                       className={`fas fa-eye${!checkPassword ? '-slash' : ''}`}
                     ></i>
-                  </a>
+                  </Button>
                 </div>
               </Form.Group>
 
@@ -211,7 +212,8 @@ const ProfileScreen = ({ location, history }) => {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   ></Form.Control>
-                  <a
+                  <Button
+                    variant='link'
                     onClick={(e) => {
                       e.preventDefault()
                       setCheckConfirmPassword(!checkConfirmPassword)
@@ -228,7 +230,7 @@ const ProfileScreen = ({ location, history }) => {
                         !checkConfirmPassword ? '-slash' : ''
                       }`}
                     ></i>
-                  </a>
+                  </Button>
                 </div>
               </Form.Group>
               <Button

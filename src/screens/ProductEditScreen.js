@@ -7,6 +7,7 @@ import Message from '../components/Message'
 import Loader from '../components/Loader'
 import FormContainer from '../components/FormContainer'
 import Rating from '../components/Rating'
+import FormEditor from '../components/FormEditor'
 import { listProductDetails, updateProduct } from '../actions/productActions'
 import { listSegments } from '../actions/segmentActions'
 import {
@@ -22,8 +23,8 @@ const ProductEditScreen = ({ match, history }) => {
   const productId = match.params.id
   const dispatch = useDispatch()
 
-  const userLogin = useSelector((state) => state.userLogin)
-  const { userInfo } = userLogin
+  // const userLogin = useSelector((state) => state.userLogin)
+  // const { userInfo } = userLogin
 
   const { segments } = useSelector((state) => state.segmentList)
 
@@ -42,7 +43,8 @@ const ProductEditScreen = ({ match, history }) => {
   const [name, setName] = useState('')
   const [price, setPrice] = useState(0)
 
-  const [newUploadedImages, setNewUploadedImage] = useState([])
+  // const [newUploadedImages, setNewUploadedImage] = useState([])
+  const [, setNewUploadedImage] = useState([])
   const [uploadedImages, setUploadedImages] = useState([]) //all from current uploaded images
   const [newImages, setNewImage] = useState([]) //Handles Image files from input generates blob
 
@@ -62,6 +64,9 @@ const ProductEditScreen = ({ match, history }) => {
   const [reviews, setReviews] = useState([])
   const [dataLoaded, setDataLoaded] = useState(false)
 
+  useEffect(() => {
+    console.log(description)
+  }, [description])
   useEffect(() => {
     dispatch(listSegments())
     dispatch(listCategories())
@@ -245,6 +250,10 @@ const ProductEditScreen = ({ match, history }) => {
         )
       )
     }
+  }
+
+  const setHtmlDesc = (html) => {
+    setDescription(html)
   }
   return (
     <>
@@ -445,7 +454,7 @@ const ProductEditScreen = ({ match, history }) => {
               </Form.Control>
             </Form.Group>
 
-            <Form.Group controlId='description'>
+            {/* <Form.Group controlId='description'>
               <Form.Label>Description</Form.Label>
               <Form.Control
                 as='textarea'
@@ -453,6 +462,13 @@ const ProductEditScreen = ({ match, history }) => {
                 placeholder='Enter description'
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
+              />
+            </Form.Group> */}
+            <Form.Group>
+              <Form.Label>Description</Form.Label>
+              <FormEditor
+                description={product?.description}
+                setHtmlDesc={setHtmlDesc}
               />
             </Form.Group>
             <Form.Group>
@@ -481,7 +497,7 @@ const ProductEditScreen = ({ match, history }) => {
                                 <em>"{review.comment}"</em>
                               </Col>
                               <Col className='product-action-wrap'>
-                                <a>
+                                <Button variant='link'>
                                   <i
                                     className='fa fa-check'
                                     aria-hidden='true'
@@ -499,8 +515,9 @@ const ProductEditScreen = ({ match, history }) => {
                                       )
                                     }}
                                   />
-                                </a>
-                                <a
+                                </Button>
+                                <Button
+                                  variant='link'
                                   onClick={(e) =>
                                     setReviews(
                                       reviews.filter(
@@ -514,7 +531,7 @@ const ProductEditScreen = ({ match, history }) => {
                                     aria-hidden='true'
                                     style={{ color: 'red' }}
                                   />
-                                </a>
+                                </Button>
                               </Col>
                             </Row>
                           </ListGroup.Item>

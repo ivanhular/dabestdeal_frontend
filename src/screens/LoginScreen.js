@@ -149,7 +149,8 @@ const LoginScreen = ({ location, history }) => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               ></Form.Control>
-              <a
+              <Button
+                variant='link'
                 onClick={(e) => {
                   e.preventDefault()
                   setCheckConfirmPassword(!checkConfirmPassword)
@@ -166,7 +167,7 @@ const LoginScreen = ({ location, history }) => {
                     !checkConfirmPassword ? '-slash' : ''
                   }`}
                 ></i>
-              </a>
+              </Button>
             </div>
           </Form.Group>
 

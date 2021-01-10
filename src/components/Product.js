@@ -7,10 +7,19 @@ const Product = ({ product }) => {
   return (
     <Card className='my-3 p-3 rounded product-item'>
       <Link to={`/product/${product._id}`}>
-        <Card.Img
-          src={product.images.find((image) => image.isFeaturedImage).url}
-          variant='top'
-        />
+        <div
+          className='product__list-image'
+          style={{
+            backgroundImage: `url(${
+              product.images.find((image) => image.isFeaturedImage).url
+            })`,
+          }}
+        >
+          <Card.Img
+            src={product.images.find((image) => image.isFeaturedImage).url}
+            variant='top'
+          />
+        </div>
       </Link>
 
       <Card.Body>

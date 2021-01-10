@@ -113,7 +113,8 @@ const RegisterScreen = ({ location, history }) => {
               onChange={(e) => setPassword(e.target.value)}
               required
             ></Form.Control>
-            <a
+            <Button
+              variant='link'
               onClick={(e) => {
                 e.preventDefault()
                 setCheckPassword(!checkPassword)
@@ -126,7 +127,7 @@ const RegisterScreen = ({ location, history }) => {
               }}
             >
               <i className={`fas fa-eye${!checkPassword ? '-slash' : ''}`}></i>
-            </a>
+            </Button>
           </div>
         </Form.Group>
 
@@ -140,7 +141,8 @@ const RegisterScreen = ({ location, history }) => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             ></Form.Control>
-            <a
+            <Button
+              variant='link'
               onClick={(e) => {
                 e.preventDefault()
                 setCheckConfirmPassword(!checkConfirmPassword)
@@ -155,7 +157,7 @@ const RegisterScreen = ({ location, history }) => {
               <i
                 className={`fas fa-eye${!checkConfirmPassword ? '-slash' : ''}`}
               ></i>
-            </a>
+            </Button>
           </div>
         </Form.Group>
 

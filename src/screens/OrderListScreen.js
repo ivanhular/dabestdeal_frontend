@@ -52,7 +52,7 @@ const OrderListScreen = ({ history }) => {
 
   const orderCreate = useSelector((state) => state.orderCreate)
   const {
-    order,
+    // order,
     loading: orderCreateLoading,
     success: orderCreateSuccess,
     error: orderCreateError,
@@ -92,7 +92,7 @@ const OrderListScreen = ({ history }) => {
   const [province, setProvince] = useState('')
   const [email, setEmail] = useState('')
   const [postalCode, setPostalCode] = useState('')
-  const [country, setCountry] = useState('philippines')
+  const country = 'philippines'
   const [landMark, setLandMark] = useState()
   const [orderRemarks, setOrderRemarks] = useState()
   const [paymentMethod, setPaymentMethod] = useState()
@@ -531,9 +531,7 @@ const OrderListScreen = ({ history }) => {
         setTrackingError(true)
         return true
       }
-      const { status } = await axios.get(
-        `/api/orders/tracking/${courierTrackingNo}`
-      )
+      await axios.get(`/api/orders/tracking/${courierTrackingNo}`)
       // if (status === 200) {
       dispatch(
         updateOrder(orderViewDetail._id, {
@@ -716,7 +714,7 @@ const OrderListScreen = ({ history }) => {
                   // small={true}
                 />
                 {startDate && endDate && (
-                  <a
+                  <button
                     className='fas fa-times clearDate'
                     onClick={(e) => {
                       e.preventDefault()
@@ -728,7 +726,7 @@ const OrderListScreen = ({ history }) => {
                         })
                       )
                     }}
-                  ></a>
+                  ></button>
                 )}
               </div>
             </Col>

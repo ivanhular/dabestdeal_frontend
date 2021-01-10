@@ -94,7 +94,7 @@ export const login = (email, password = '123456') => async (dispatch) => {
 }
 
 export const logout = () => async (dispatch) => {
-  const { data } = axios.post('/api/users/logout')
+  axios.post('/api/users/logout')
   localStorage.removeItem('userInfo')
   localStorage.removeItem('cartItems')
   localStorage.removeItem('shippingAddress')

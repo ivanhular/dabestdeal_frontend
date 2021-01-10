@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import moment from 'moment'
@@ -12,13 +12,14 @@ import {
   listProductDetails,
   createProductReview,
 } from '../actions/productActions'
-import { listMyOrders } from '../actions/orderActions'
+// import { listMyOrders } from '../actions/orderActions'
 import { PRODUCT_CREATE_REVIEW_RESET } from '../constants/productConstants'
 import { SRLWrapper } from 'simple-react-lightbox'
 import ReactImageMagnify from 'react-image-magnify'
 import Slider from 'react-slick'
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
+import parse from 'html-react-parser'
 // import Swiper from 'react-id-swiper'
 // import 'swiper/swiper.scss'
 
@@ -43,6 +44,8 @@ const ProductScreen = ({ history, match }) => {
     error: errorProductReview,
   } = productReviewCreate
 
+  const images = product?.images.filter((image) => !image.isBannerImage)
+
   useEffect(() => {
     if (successProductReview) {
       setRating(0)
@@ -54,7 +57,7 @@ const ProductScreen = ({ history, match }) => {
       // dispatch(listMyOrders())
       dispatch({ type: PRODUCT_CREATE_REVIEW_RESET })
     }
-  }, [dispatch, product?._id, match, successProductReview])
+  }, [dispatch, product._id, match, successProductReview])
 
   const addToCartHandler = () => {
     history.push(`/cart/${match.params.id}?qty=${qty}`)
@@ -99,9 +102,15 @@ const ProductScreen = ({ history, match }) => {
   const settings = {
     customPaging: function (i) {
       return (
-        <a>
-          <Image src={product?.images[i].url} fluid />
-        </a>
+        <Button
+          variant='link'
+          style={{
+            width: '100%',
+            height: '100%',
+          }}
+        >
+          <Image src={images[i].url} fluid />
+        </Button>
       )
     },
     dots: true,
@@ -110,6 +119,14 @@ const ProductScreen = ({ history, match }) => {
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
+  }
+
+  const options = {
+    replace: (domNode) => {
+      if (domNode.attribs && domNode.attribs.class === 'remove') {
+        return <></>
+      }
+    },
   }
 
   return (
@@ -131,29 +148,38 @@ const ProductScreen = ({ history, match }) => {
               className='product-image-wrapper'
             >
               <Slider {...settings}>
-                {product.images.length &&
-                  product.images.map((image, idx) => (
-                    <div key={`slide_${idx}`}>
-                      <ReactImageMagnify
-                        {...{
-                          smallImage: {
-                            alt: product.name,
-                            isFluidWidth: true,
-                            src: image.url,
-                          },
-                          largeImage: {
-                            src: image.url,
-                            width: 1280,
-                            height: 800,
-                          },
-                          lensStyle: { backgroundColor: 'rgba(0,0,0,.6)' },
-                          shouldHideHintAfterFirstActivation: false,
-                          enlargedImagePosition: 'over',
-                          isHintEnabled: true,
-                        }}
-                      />
-                    </div>
-                  ))}
+                {console.log(
+                  product.images.filter((image) => !image.isBannerImage)
+                )}
+                {product?.images.length &&
+                  product.images
+                    .filter((image) => !image.isBannerImage)
+                    .map((image, idx) => (
+                      <div key={`slide_${idx}`}>
+                        <ReactImageMagnify
+                          {...{
+                            smallImage: {
+                              alt: product.name,
+                              isFluidWidth: true,
+                              src: image.url,
+                            },
+                            largeImage: {
+                              src: image.url,
+                              width: 800,
+                              height: 1000,
+                            },
+                            lensStyle: { backgroundColor: 'rgba(0,0,0,.6)' },
+                            shouldHideHintAfterFirstActivation: false,
+                            enlargedImagePosition: 'over',
+                            isHintEnabled: true,
+                          }}
+                        />
+                        {/* <div
+                          className='product-image'
+                          style={{ backgroundImage: `url(${image.url})` }}
+                        ></div> */}
+                      </div>
+                    ))}
               </Slider>
 
               {/* <Swiper
@@ -188,7 +214,9 @@ const ProductScreen = ({ history, match }) => {
                 </ListGroup.Item>
                 <ListGroup.Item>Price: ₱{product.price}</ListGroup.Item>
                 <ListGroup.Item>
-                  Description: {product.description}
+                  Description:
+                  {/* {product.description} */}
+                  {parse(`${product.description}`, options)}
                 </ListGroup.Item>
               </ListGroup>
             </Col>

@@ -661,8 +661,14 @@ footer {
   bottom: 0 !important;
   position: relative !important;
   li {
+    list-style-type: none;
     width: 60px !important;
     height: 60px !important;
+    button {
+      &::before {
+        display: none;
+      }
+    }
   }
 }
 
@@ -673,5 +679,34 @@ footer {
       text-decoration: none;
       @include font-size(12px, 14px, 500px, 1440px);
     }
+  }
+}
+
+button.btn.btn-link {
+  box-shadow: none;
+  padding: 0;
+}
+
+.editor__body {
+  border: 1px solid #f1f1f1;
+  padding: 20px;
+}
+
+//Home product list
+.product__list-image {
+  max-height: 300px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #f8a493;
+  img {
+    visibility: hidden;
+  }
+}
+// Product Single
+.product-image-wrapper {
+  // max-height: 500px;
+  img {
+    // visibility: hidden;
   }
 }

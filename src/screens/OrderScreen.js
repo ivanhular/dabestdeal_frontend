@@ -4,15 +4,7 @@ import axios from 'axios'
 import moment from 'moment'
 import { PayPalButton } from 'react-paypal-button-v2'
 import { Link } from 'react-router-dom'
-import {
-  Row,
-  Col,
-  ListGroup,
-  Image,
-  Card,
-  Button,
-  Modal,
-} from 'react-bootstrap'
+import { Row, Col, ListGroup, Image, Card, Button } from 'react-bootstrap'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
 
@@ -205,7 +197,7 @@ const OrderScreen = ({ match, history }) => {
                   <Col>Shipping</Col>
                   <Col>
                     {order.shippingPrice > 0 && <span>&#8369;</span>}
-                    {order.shippingPrice == 0
+                    {order.shippingPrice === 0
                       ? 'Free'
                       : order.shippingPrice.toFixed(2)}
                   </Col>

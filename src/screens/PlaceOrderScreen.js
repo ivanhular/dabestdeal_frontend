@@ -155,7 +155,7 @@ const PlaceOrderScreen = ({ history }) => {
                   <Col>Shipping</Col>
                   <Col>
                     {cart.shippingPrice > 0 && <span>&#8369;</span>}
-                    {cart.shippingPrice == 0 && 'Free'}
+                    {cart.shippingPrice === 0 && 'Free'}
                   </Col>
                 </Row>
               </ListGroup.Item>

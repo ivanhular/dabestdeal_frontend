@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Container, Row, Col, Image } from 'react-bootstrap'
+import { Container, Col, Image } from 'react-bootstrap'
 import SocialList from './SocialList'
 import jntLogo from '../assets/jnt.png'
 import codLogo from '../assets/COD.png'

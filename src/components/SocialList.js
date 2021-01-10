@@ -6,7 +6,7 @@ function SocialList() {
       <li>
         <a
           href='https://www.facebook.com/dabestdealcom'
-          rel='noopener'
+          rel='noopener noreferrer'
           target='_blank'
         >
           <i className='fab fa-facebook'></i>
