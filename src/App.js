@@ -1,8 +1,8 @@
 import React, { lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
-import { Container } from 'react-bootstrap'
+import { Container, Image } from 'react-bootstrap'
 // import load from './utils'
-import Loader from './components/Loader'
+import Loader from './assets/Loader.gif'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import HomeScreen from './screens/HomeScreen'
@@ -10,7 +10,13 @@ import ScrollToTop from './components/ScrollToTop'
 
 const load = (Component) => (props) => {
   return (
-    <Suspense fallback={<Loader />}>
+    <Suspense
+      fallback={
+        <div className='loader'>
+          <Image className='loader__icon' src={Loader} />
+        </div>
+      }
+    >
       <Component {...props} />
     </Suspense>
   )

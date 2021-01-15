@@ -34,14 +34,13 @@ const HomeScreen = ({ match }) => {
           <i className='fas fa-store'></i> Go Back
         </Link>
       )}
-
-      {loading ? (
-        <Loader />
-      ) : error ? (
-        <Message variant='danger'>{error}</Message>
-      ) : (
-        <>
-          <div className='latest-product-wrap'>
+      <div className='latest-product-wrap'>
+        {loading ? (
+          <Loader />
+        ) : error ? (
+          <Message variant='danger'>{error}</Message>
+        ) : (
+          <>
             <h1 className='heading'>
               {!keyword ? 'Latest Products' : 'Product Search'}
             </h1>
@@ -71,9 +70,9 @@ const HomeScreen = ({ match }) => {
               page={page}
               keyword={keyword ? keyword : ''}
             />
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </div>
     </>
   )
 }
