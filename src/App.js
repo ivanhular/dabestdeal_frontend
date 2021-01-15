@@ -1,26 +1,41 @@
-import React from 'react'
+import React, { lazy, Suspense } from 'react'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import { Container } from 'react-bootstrap'
+// import load from './utils'
+import Loader from './components/Loader'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import HomeScreen from './screens/HomeScreen'
-import ProductScreen from './screens/ProductScreen'
-import CartScreen from './screens/CartScreen'
-import LoginScreen from './screens/LoginScreen'
-import RegisterScreen from './screens/RegisterScreen'
-import ProfileScreen from './screens/ProfileScreen'
-import ShippingScreen from './screens/ShippingScreen'
-import PaymentScreen from './screens/PaymentScreen'
-import PlaceOrderScreen from './screens/PlaceOrderScreen'
-import OrderScreen from './screens/OrderScreen'
-import UserListScreen from './screens/UserListScreen'
-import UserEditScreen from './screens/UserEditScreen'
-import ProductListScreen from './screens/ProductListScreen'
-import ProductEditScreen from './screens/ProductEditScreen'
-import OrderListScreen from './screens/OrderListScreen'
-import PrivacyScreen from './screens/PrivacyScreen'
-import HelpScreen from './screens/HelpScreen'
 import ScrollToTop from './components/ScrollToTop'
+
+const load = (Component) => (props) => {
+  return (
+    <Suspense fallback={<Loader />}>
+      <Component {...props} />
+    </Suspense>
+  )
+}
+
+const ProductScreen = load(lazy(() => import('./screens/ProductScreen')))
+const CartScreen = load(lazy(() => import('./screens/CartScreen')))
+const LoginScreen = load(lazy(() => import('./screens/LoginScreen')))
+const RegisterScreen = load(lazy(() => import('./screens/RegisterScreen')))
+const ProfileScreen = load(lazy(() => import('./screens/ProfileScreen')))
+const ShippingScreen = load(lazy(() => import('./screens/ShippingScreen')))
+const PaymentScreen = load(lazy(() => import('./screens/PaymentScreen')))
+const PlaceOrderScreen = load(lazy(() => import('./screens/PlaceOrderScreen')))
+const OrderScreen = load(lazy(() => import('./screens/OrderScreen')))
+const UserListScreen = load(lazy(() => import('./screens/UserListScreen')))
+const UserEditScreen = load(lazy(() => import('./screens/UserEditScreen')))
+const ProductListScreen = load(
+  lazy(() => import('./screens/ProductListScreen'))
+)
+const ProductEditScreen = load(
+  lazy(() => import('./screens/ProductEditScreen'))
+)
+const OrderListScreen = load(lazy(() => import('./screens/OrderListScreen')))
+const PrivacyScreen = load(lazy(() => import('./screens/PrivacyScreen')))
+const HelpScreen = load(lazy(() => import('./screens/HelpScreen')))
 // import TestScreen from './screens/TestScreen'
 
 const App = () => {
