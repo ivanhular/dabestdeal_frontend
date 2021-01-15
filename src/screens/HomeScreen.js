@@ -1,14 +1,17 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Row, Col } from 'react-bootstrap'
-import Product from '../components/Product'
+// import Product from '../components/Product'
 import Message from '../components/Message'
-import Loader from '../components/Loader'
+// import Loader from '../components/Loader'
 import Paginate from '../components/Paginate'
 import ProductCarousel from '../components/ProductCarousel'
+import ProductPlaceholder from '../components/ProductPlaceholder'
 import Meta from '../components/Meta'
 import { listProducts } from '../actions/productActions'
+
+const Product = lazy(() => import('../components/Product'))
 
 const HomeScreen = ({ match }) => {
   const keyword = match.params.keyword
@@ -18,7 +21,7 @@ const HomeScreen = ({ match }) => {
   const dispatch = useDispatch()
 
   const productList = useSelector((state) => state.productList)
-  const { loading, error, products, page, pages } = productList
+  const { error, products, page, pages } = productList
 
   useEffect(() => {
     dispatch(listProducts(keyword, pageNumber))
@@ -28,16 +31,16 @@ const HomeScreen = ({ match }) => {
     <>
       <Meta />
       {!keyword ? (
-        <ProductCarousel />
+        <div className='home__carousel'>
+          <ProductCarousel />
+        </div>
       ) : (
         <Link to='/' className='btn btn-light'>
           <i className='fas fa-store'></i> Go Back
         </Link>
       )}
       <div className='latest-product-wrap'>
-        {loading ? (
-          <Loader />
-        ) : error ? (
+        {error ? (
           <Message variant='danger'>{error}</Message>
         ) : (
           <>
@@ -60,7 +63,9 @@ const HomeScreen = ({ match }) => {
                 (product) =>
                   product.status && (
                     <Col key={product._id} sm={12} md={6} lg={4} xl={3}>
-                      <Product product={product} />
+                      <Suspense fallback={<ProductPlaceholder />}>
+                        <Product product={product} />
+                      </Suspense>
                     </Col>
                   )
               )}
@@ -73,6 +78,7 @@ const HomeScreen = ({ match }) => {
           </>
         )}
       </div>
+      {/* <ProductPlaceholder /> */}
     </>
   )
 }

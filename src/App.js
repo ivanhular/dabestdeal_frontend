@@ -3,9 +3,6 @@ import { BrowserRouter as Router, Route } from 'react-router-dom'
 import { Container, Image } from 'react-bootstrap'
 // import load from './utils'
 import Loader from './assets/Loader.gif'
-import Header from './components/Header'
-import Footer from './components/Footer'
-import HomeScreen from './screens/HomeScreen'
 import ScrollToTop from './components/ScrollToTop'
 
 const load = (Component) => (props) => {
@@ -22,6 +19,9 @@ const load = (Component) => (props) => {
   )
 }
 
+const Header = lazy(() => import('./components/Header'))
+const Footer = lazy(() => import('./components/Footer'))
+const HomeScreen = load(lazy(() => import('./screens/HomeScreen')))
 const ProductScreen = load(lazy(() => import('./screens/ProductScreen')))
 const CartScreen = load(lazy(() => import('./screens/CartScreen')))
 const LoginScreen = load(lazy(() => import('./screens/LoginScreen')))
@@ -47,7 +47,9 @@ const HelpScreen = load(lazy(() => import('./screens/HelpScreen')))
 const App = () => {
   return (
     <Router>
-      <Header />
+      <Suspense fallback=''>
+        <Header />
+      </Suspense>
       <main className='main-wrap py-3'>
         <Container>
           <ScrollToTop />
@@ -86,7 +88,9 @@ const App = () => {
           <Route path='/' component={HomeScreen} exact />
         </Container>
       </main>
-      <Footer />
+      <Suspense fallback=''>
+        <Footer />
+      </Suspense>
     </Router>
   )
 }
