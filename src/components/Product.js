@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { Card } from 'react-bootstrap'
+import { LazyLoadImage } from 'react-lazy-load-image-component'
 import Rating from './Rating'
 
 const Product = ({ product }) => {
@@ -15,10 +16,13 @@ const Product = ({ product }) => {
             })`,
           }}
         >
-          <Card.Img
+          <LazyLoadImage
+            src={product.images.find((image) => image.isFeaturedImage).url}
+          />
+          {/* <Card.Img
             src={product.images.find((image) => image.isFeaturedImage).url}
             variant='top'
-          />
+          /> */}
         </div>
       </Link>
 
