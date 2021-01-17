@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Carousel } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import { LazyLoadImage } from 'react-lazy-load-image-component'
-import Loader from './Loader'
+// import Loader from './Loader'
 import Message from './Message'
 import { listFeaturedProducts } from '../actions/productActions'
 import 'react-lazy-load-image-component/src/effects/opacity.css'
@@ -11,15 +11,13 @@ const ProductCarousel = () => {
   const dispatch = useDispatch()
 
   const productFeatured = useSelector((state) => state.productFeatured)
-  const { loading, error, products } = productFeatured
+  const { error, products } = productFeatured
 
   useEffect(() => {
     dispatch(listFeaturedProducts())
   }, [dispatch])
 
-  return loading ? (
-    <Loader />
-  ) : error ? (
+  return error ? (
     <Message variant='danger'>{error}</Message>
   ) : (
     <Carousel pause='hover' className='bg-dark' fade>

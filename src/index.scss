@@ -98,6 +98,7 @@ button.kep-login-facebook.metro {
 //main
 .main-wrap {
   margin-top: 9.4375rem;
+  margin-bottom: 100px;
 }
 
 .container {
@@ -527,12 +528,13 @@ strong {
 
 // Home feature
 .home__carousel {
-  .carousel-item {
-    min-height: 650px;
-    @include max(991px) {
-      min-height: 300px;
-    }
+  min-height: 650px;
+  @include max(991px) {
+    min-height: 300px;
   }
+  // .carousel-item {
+
+  // }
 }
 .carousel {
   background: $pcolor;

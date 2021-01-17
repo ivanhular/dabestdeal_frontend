@@ -4,7 +4,9 @@ import { Container, Image } from 'react-bootstrap'
 // import load from './utils'
 import Loader from './assets/Loader.gif'
 import ScrollToTop from './components/ScrollToTop'
-
+import Header from './components/Header'
+import HomeScreen from './screens/HomeScreen'
+const SimpleReactLightbox = lazy(() => import('simple-react-lightbox'))
 const load = (Component) => (props) => {
   return (
     <Suspense
@@ -19,9 +21,7 @@ const load = (Component) => (props) => {
   )
 }
 
-const Header = lazy(() => import('./components/Header'))
 const Footer = lazy(() => import('./components/Footer'))
-const HomeScreen = load(lazy(() => import('./screens/HomeScreen')))
 const ProductScreen = load(lazy(() => import('./screens/ProductScreen')))
 const CartScreen = load(lazy(() => import('./screens/CartScreen')))
 const LoginScreen = load(lazy(() => import('./screens/LoginScreen')))
@@ -42,14 +42,13 @@ const ProductEditScreen = load(
 const OrderListScreen = load(lazy(() => import('./screens/OrderListScreen')))
 const PrivacyScreen = load(lazy(() => import('./screens/PrivacyScreen')))
 const HelpScreen = load(lazy(() => import('./screens/HelpScreen')))
+
 // import TestScreen from './screens/TestScreen'
 
 const App = () => {
   return (
     <Router>
-      <Suspense fallback=''>
-        <Header />
-      </Suspense>
+      <Header />
       <main className='main-wrap py-3'>
         <Container>
           <ScrollToTop />
@@ -62,7 +61,11 @@ const App = () => {
           <Route path='/login' component={LoginScreen} />
           <Route path='/register' component={RegisterScreen} />
           <Route path='/profile' component={ProfileScreen} />
-          <Route path='/product/:id' component={ProductScreen} />
+          <Suspense fallback=''>
+            <SimpleReactLightbox>
+              <Route path='/product/:id' component={ProductScreen} />
+            </SimpleReactLightbox>
+          </Suspense>
           <Route path='/cart/:id?' component={CartScreen} />
           <Route path='/admin/userlist' component={UserListScreen} />
           <Route path='/admin/user/:id/edit' component={UserEditScreen} />

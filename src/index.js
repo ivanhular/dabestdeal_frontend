@@ -2,17 +2,13 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { Provider } from 'react-redux'
 import store from './store'
-import './bootstrap.min.css'
-import './index.scss'
 import App from './App'
 import * as serviceWorker from './serviceWorker'
-import SimpleReactLightbox from 'simple-react-lightbox'
-
+import './bootstrap.min.css'
+import './index.scss'
 ReactDOM.render(
   <Provider store={store}>
-    <SimpleReactLightbox>
-      <App />
-    </SimpleReactLightbox>
+    <App />
   </Provider>,
   document.getElementById('root')
 )
