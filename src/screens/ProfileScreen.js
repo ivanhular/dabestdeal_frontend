@@ -144,6 +144,7 @@ const ProfileScreen = ({ location, history }) => {
                   onChange={(e) => setMiddleName(e.target.value)}
                 ></Form.Control>
               </Form.Group>
+
               <Form.Group>
                 <Form.Label>Last Name</Form.Label>
                 <Form.Control

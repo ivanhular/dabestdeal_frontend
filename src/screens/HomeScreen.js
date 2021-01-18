@@ -11,6 +11,7 @@ import ProductPlaceholder from '../components/ProductPlaceholder'
 import Meta from '../components/Meta'
 import { listProducts } from '../actions/productActions'
 
+const Messenger = lazy(() => import('../components/Messenger'))
 const Product = lazy(() => import('../components/Product'))
 
 const HomeScreen = ({ match }) => {
@@ -29,6 +30,9 @@ const HomeScreen = ({ match }) => {
 
   return (
     <>
+      <Suspense fallback={null}>
+        <Messenger />
+      </Suspense>
       <Meta />
       {!keyword ? (
         <div className='home__carousel'>

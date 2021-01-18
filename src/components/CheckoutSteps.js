@@ -58,13 +58,13 @@ const CheckoutSteps = ({ step1, step2, step3, step4 }) => {
           <LinkContainer to='/placeorder'>
             <Nav.Link>
               <div className='step-no active'>4</div>{' '}
-              <i class='fas fa-clipboard-check'></i> Place Order
+              <i className='fas fa-clipboard-check'></i> Place Order
             </Nav.Link>
           </LinkContainer>
         ) : (
           <Nav.Link disabled>
             <div className='step-no'>4</div>{' '}
-            <i class='fas fa-clipboard-check'></i> Place Order
+            <i className='fas fa-clipboard-check'></i> Place Order
           </Nav.Link>
         )}
       </Nav.Item>

@@ -57,7 +57,7 @@ const CartScreen = ({ match, location, history }) => {
                         <Link to={`/product/${item.product}`}>{item.name}</Link>
                       </Col>
                       <Col xs={3} md={2}>
-                        ₱{item.price}
+                        ₱{item?.price?.toFixed(2)}
                       </Col>
                       <Col xs={5} md={2}>
                         <Form.Control

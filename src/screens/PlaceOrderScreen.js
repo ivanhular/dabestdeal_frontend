@@ -6,6 +6,7 @@ import Message from '../components/Message'
 import CheckoutSteps from '../components/CheckoutSteps'
 import { createOrder, listMyOrders } from '../actions/orderActions'
 import { ORDER_CREATE_RESET } from '../constants/orderConstants'
+import freeShipping from '../assets/free.png'
 
 const PlaceOrderScreen = ({ history }) => {
   const dispatch = useDispatch()
@@ -63,19 +64,19 @@ const PlaceOrderScreen = ({ history }) => {
 
     dispatch(listMyOrders())
 
-    console.log({
-      orderItems: cart.cartItems,
-      firstName: userInfo.firstName,
-      middleName: userInfo.middleName,
-      lastName: userInfo.lastName,
-      phone: userInfo.phone,
-      shippingAddress: cart.shippingAddress,
-      paymentMethod: cart.paymentMethod,
-      shippingPrice: cart.shippingPrice,
-      totalPrice: cart.totalPrice,
-      orderStatus: 'pending',
-      orderFrom: 'website',
-    })
+    // console.log({
+    //   orderItems: cart.cartItems,
+    //   firstName: userInfo.firstName,
+    //   middleName: userInfo.middleName,
+    //   lastName: userInfo.lastName,
+    //   phone: userInfo.phone,
+    //   shippingAddress: cart.shippingAddress,
+    //   paymentMethod: cart.paymentMethod,
+    //   shippingPrice: cart.shippingPrice,
+    //   totalPrice: cart.totalPrice,
+    //   orderStatus: 'pending',
+    //   orderFrom: 'website',
+    // })
   }
 
   return (
@@ -154,8 +155,10 @@ const PlaceOrderScreen = ({ history }) => {
                 <Row>
                   <Col>Shipping</Col>
                   <Col>
+                    <Image src={freeShipping} style={{ maxWidth: '50px' }} />
+                    {/* {cart.shippingPrice}
                     {cart.shippingPrice > 0 && <span>&#8369;</span>}
-                    {cart.shippingPrice === 0 && 'Free'}
+                    {cart.shippingPrice === 0.0 && 'Free'} */}
                   </Col>
                 </Row>
               </ListGroup.Item>

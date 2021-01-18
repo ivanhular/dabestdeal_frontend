@@ -309,7 +309,9 @@ const OrderListScreen = ({ history }) => {
         orderItems.concat({
           product,
           name,
-          image: images.length ? images[0].url : '',
+          image: images.length
+            ? images.find((image) => image.isFeaturedImage).url
+            : '',
           price,
           countInStock,
           qty: 1,
@@ -1098,7 +1100,9 @@ const OrderListScreen = ({ history }) => {
                                     <Image
                                       src={
                                         product.images.length &&
-                                        product.images[0].url
+                                        product.images.find(
+                                          (image) => image.isFeaturedImage
+                                        ).url
                                       }
                                       fluid
                                       rounded

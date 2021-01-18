@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import moment from 'moment'
@@ -22,6 +22,8 @@ import 'slick-carousel/slick/slick-theme.css'
 import parse from 'html-react-parser'
 // import Swiper from 'react-id-swiper'
 // import 'swiper/swiper.scss'
+
+const Messenger = lazy(() => import('../components/Messenger'))
 
 const ProductScreen = ({ history, match }) => {
   const [qty, setQty] = useState(1)
@@ -126,11 +128,18 @@ const ProductScreen = ({ history, match }) => {
       if (domNode.attribs && domNode.attribs.class === 'remove') {
         return <></>
       }
+      // if (domNode.name === 'li') {
+      //   domNode.key = this.count + 1
+      // }
+      // console.log(domNode)
     },
   }
 
   return (
     <>
+      <Suspense fallback={null}>
+        <Messenger />
+      </Suspense>
       <Link className='btn btn-light my-3' to='/'>
         <i className='fas fa-home'></i> Go Back
       </Link>
@@ -148,9 +157,9 @@ const ProductScreen = ({ history, match }) => {
               className='product-image-wrapper'
             >
               <Slider {...settings}>
-                {console.log(
+                {/* {console.log(
                   product.images.filter((image) => !image.isBannerImage)
-                )}
+                )} */}
                 {product?.images.length &&
                   product.images
                     .filter((image) => !image.isBannerImage)
@@ -212,7 +221,9 @@ const ProductScreen = ({ history, match }) => {
                     } reviews`}
                   />
                 </ListGroup.Item>
-                <ListGroup.Item>Price: ₱{product.price}</ListGroup.Item>
+                <ListGroup.Item>
+                  Price: ₱{product?.price?.toFixed(2)}
+                </ListGroup.Item>
                 <ListGroup.Item>
                   Description:
                   {/* {product.description} */}
@@ -227,7 +238,7 @@ const ProductScreen = ({ history, match }) => {
                     <Row>
                       <Col>Price:</Col>
                       <Col>
-                        <strong>₱{product.price}</strong>
+                        <strong>₱{product?.price?.toFixed(2)}</strong>
                       </Col>
                     </Row>
                   </ListGroup.Item>
