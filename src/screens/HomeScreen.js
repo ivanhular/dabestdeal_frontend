@@ -2,6 +2,7 @@ import React, { useEffect, lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Row, Col } from 'react-bootstrap'
+import ReactPixel from 'react-facebook-pixel'
 // import Product from '../components/Product'
 import Message from '../components/Message'
 // import Loader from '../components/Loader'
@@ -23,6 +24,16 @@ const HomeScreen = ({ match }) => {
 
   const productList = useSelector((state) => state.productList)
   const { error, products, page, pages } = productList
+
+  useEffect(() => {
+    const advancedMatching = {}
+    const options = {
+      autoConfig: true, // set pixel's autoConfig. More info: https://developers.facebook.com/docs/facebook-pixel/advanced/
+      debug: false, // enable logs
+    }
+    ReactPixel.init('797354354331651', advancedMatching, options)
+    ReactPixel.pageView()
+  }, [])
 
   useEffect(() => {
     dispatch(listProducts(keyword, pageNumber))

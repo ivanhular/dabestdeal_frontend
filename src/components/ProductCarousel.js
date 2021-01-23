@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Carousel, Image } from 'react-bootstrap'
+import { Carousel } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
-// import { LazyLoadImage } from 'react-lazy-load-image-component'
+import { LazyLoadImage } from 'react-lazy-load-image-component'
 // import Loader from './Loader'
 import Message from './Message'
 import { listFeaturedProducts } from '../actions/productActions'
@@ -26,7 +26,7 @@ const ProductCarousel = () => {
           product.isFeatured && (
             <Carousel.Item key={product._id}>
               <Link to={`/product/${product._id}`}>
-                <Image
+                {/* <Image
                   src={
                     product.images.find((image) => image.isBannerImage)
                       ? product.images.find((image) => image.isBannerImage).url
@@ -34,9 +34,9 @@ const ProductCarousel = () => {
                   }
                   style={{ margin: '0 0 20px 0' }}
                   fluid
-                />
+                /> */}
 
-                {/* <LazyLoadImage
+                <LazyLoadImage
                   effect='opacity'
                   src={
                     product.images.find((image) => image.isBannerImage)
@@ -44,7 +44,7 @@ const ProductCarousel = () => {
                       : ''
                   }
                   style={{ margin: '0 0 20px 0', width: '100%' }}
-                /> */}
+                />
                 <Carousel.Caption className='carousel-caption'>
                   <h2>
                     {product.name} (₱{product.price.toFixed(2)})

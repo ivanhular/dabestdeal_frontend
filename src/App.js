@@ -7,6 +7,7 @@ import ScrollToTop from './components/ScrollToTop'
 import Header from './components/Header'
 import HomeScreen from './screens/HomeScreen'
 const SimpleReactLightbox = lazy(() => import('simple-react-lightbox'))
+
 const load = (Component) => (props) => {
   return (
     <Suspense
