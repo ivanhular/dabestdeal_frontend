@@ -36,15 +36,18 @@ const ProductCarousel = () => {
                   fluid
                 /> */}
 
-                <LazyLoadImage
-                  effect='opacity'
-                  src={
-                    product.images.find((image) => image.isBannerImage)
-                      ? product.images.find((image) => image.isBannerImage).url
-                      : ''
-                  }
-                  style={{ margin: '0 0 20px 0', width: '100%' }}
-                />
+                <div className='img-wrap'>
+                  <LazyLoadImage
+                    effect='opacity'
+                    src={
+                      product.images.find((image) => image.isBannerImage)
+                        ? product.images.find((image) => image.isBannerImage)
+                            .url
+                        : ''
+                    }
+                    style={{ margin: '0 0 20px 0', width: '100%' }}
+                  />
+                </div>
                 <Carousel.Caption className='carousel-caption'>
                   <h2>
                     {product.name} (₱{product.price.toFixed(2)})

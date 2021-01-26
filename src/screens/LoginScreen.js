@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Form, Button, Row, Col } from 'react-bootstrap'
 import FacebookLogin from 'react-facebook-login'
+import ReactPixel from 'react-facebook-pixel'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
 import CenteredModal from '../components/CenteredModal'
@@ -96,6 +97,10 @@ const LoginScreen = ({ location, history }) => {
         facebookID,
       })
     )
+    ReactPixel.track('CompleteRegistration', {
+      content_name: 'login',
+      status: true,
+    })
     // console.log({
     //   firstName,
     //   lastName,
@@ -176,7 +181,7 @@ const LoginScreen = ({ location, history }) => {
           </Button>
           <div className='separator'>or</div>
           <FacebookLogin
-            appId='1068718970238644'
+            appId={`${process.env.REACT_APP_FB_APP_ID}`}
             // autoLoad={true}
             autoLoad={false}
             fields='name,email,picture'

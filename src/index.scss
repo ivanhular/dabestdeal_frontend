@@ -6,6 +6,9 @@ $w: #fff;
 $b: #000;
 $gray: #333;
 
+html {
+  overflow-x: hidden;
+}
 a {
   text-decoration: none;
   &:hover {
@@ -50,6 +53,9 @@ h2 {
 
 .carousel-caption h2 {
   color: #fff;
+  @include max(500px) {
+    font-size: 12px;
+  }
 }
 
 // .carousel img {
@@ -99,6 +105,9 @@ button.kep-login-facebook.metro {
 .main-wrap {
   margin-top: 9.4375rem;
   margin-bottom: 100px;
+  @include max(991px) {
+    margin-top: 80px;
+  }
 }
 
 .container {
@@ -430,6 +439,9 @@ strong {
 }
 .top-bar {
   color: $pcolor;
+  @include max(991px) {
+    display: none;
+  }
   .container {
     justify-content: flex-end;
   }
@@ -455,14 +467,16 @@ strong {
 .logo-wrap {
   img {
     max-width: 100px;
-    display: none;
+    // display: none;
     &.desktop-logo {
-      @include min(992px) {
+      display: none;
+      @include min(991px) {
         display: block;
       }
     }
     &.mobile-logo {
       max-width: 50px;
+      display: none;
       @include max(991px) {
         display: block;
       }
@@ -530,7 +544,13 @@ strong {
 .home__carousel {
   min-height: 650px;
   @include max(991px) {
-    min-height: 300px;
+    min-height: 200px;
+  }
+  .img-wrap {
+    min-height: 650px;
+    @include max(991px) {
+      min-height: 200px;
+    }
   }
   // .carousel-item {
 
@@ -544,15 +564,24 @@ strong {
     margin: 40px;
     border-radius: 0;
     /* border-radius: 50%; */
+    @include max(991px) {
+      padding: 0;
+    }
   }
 }
 
 // Latest Products
 .latest-product-wrap {
   margin-top: 100px;
+  @include max(991px) {
+    margin-top: 50px;
+  }
 }
 .heading {
   text-align: center;
+  @include max(500px) {
+    font-size: 16px;
+  }
   &:after {
     content: '';
     width: 100px;
@@ -650,7 +679,7 @@ footer {
 .footer-col-title {
   text-align: center;
   font-weight: 700;
-  color: $pcolor;
+  color: #333;
 }
 .footer-bottom {
   font-size: 12px;
@@ -752,7 +781,7 @@ button.btn.btn-link {
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
-  background-color: #f8a493;
+  background-color: #84a9ac;
   img {
     visibility: hidden;
   }
@@ -776,4 +805,11 @@ button.btn.btn-link {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+//Profile
+.profile__orders {
+  @include max(991px) {
+    margin-top: 50px;
+  }
 }

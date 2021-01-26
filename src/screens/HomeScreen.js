@@ -2,17 +2,18 @@ import React, { useEffect, lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Row, Col } from 'react-bootstrap'
-import ReactPixel from 'react-facebook-pixel'
 // import Product from '../components/Product'
 import Message from '../components/Message'
 // import Loader from '../components/Loader'
 import Paginate from '../components/Paginate'
 import ProductCarousel from '../components/ProductCarousel'
+// import ProductCarouselPlaceholder from '../components/ProductCarouselPlaceholder'
 import ProductPlaceholder from '../components/ProductPlaceholder'
 import Meta from '../components/Meta'
 import { listProducts } from '../actions/productActions'
 
 const Messenger = lazy(() => import('../components/Messenger'))
+// const ProductCarousel = lazy(() => import('../components/ProductCarousel'))
 const Product = lazy(() => import('../components/Product'))
 
 const HomeScreen = ({ match }) => {
@@ -26,16 +27,6 @@ const HomeScreen = ({ match }) => {
   const { error, products, page, pages } = productList
 
   useEffect(() => {
-    const advancedMatching = {}
-    const options = {
-      autoConfig: true, // set pixel's autoConfig. More info: https://developers.facebook.com/docs/facebook-pixel/advanced/
-      debug: false, // enable logs
-    }
-    ReactPixel.init('797354354331651', advancedMatching, options)
-    ReactPixel.pageView()
-  }, [])
-
-  useEffect(() => {
     dispatch(listProducts(keyword, pageNumber))
   }, [dispatch, keyword, pageNumber])
 
@@ -47,7 +38,9 @@ const HomeScreen = ({ match }) => {
       <Meta />
       {!keyword ? (
         <div className='home__carousel'>
+          {/* <Suspense fallback={<ProductCarouselPlaceholder />}> */}
           <ProductCarousel />
+          {/* </Suspense> */}
         </div>
       ) : (
         <Link to='/' className='btn btn-light'>

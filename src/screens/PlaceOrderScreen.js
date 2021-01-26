@@ -7,6 +7,7 @@ import CheckoutSteps from '../components/CheckoutSteps'
 import { createOrder, listMyOrders } from '../actions/orderActions'
 import { ORDER_CREATE_RESET } from '../constants/orderConstants'
 import freeShipping from '../assets/free.png'
+import ReactPixel from 'react-facebook-pixel'
 
 const PlaceOrderScreen = ({ history }) => {
   const dispatch = useDispatch()
@@ -44,6 +45,10 @@ const PlaceOrderScreen = ({ history }) => {
   }, [history, success])
 
   const placeOrderHandler = () => {
+    ReactPixel.track('InitiateCheckout', {
+      currency: 'PHP',
+      value: cart?.totalPrice,
+    })
     dispatch(
       createOrder({
         user: userInfo._id,

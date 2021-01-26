@@ -20,6 +20,7 @@ import Slider from 'react-slick'
 import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
 import parse from 'html-react-parser'
+import ReactPixel from 'react-facebook-pixel'
 // import Swiper from 'react-id-swiper'
 // import 'swiper/swiper.scss'
 
@@ -47,7 +48,12 @@ const ProductScreen = ({ history, match }) => {
   } = productReviewCreate
 
   const images = product?.images.filter((image) => !image.isBannerImage)
-
+  useEffect(() => {
+    ReactPixel.track('ViewContent', {
+      content_name: product?.name,
+      content_category: product?.category?.name,
+    })
+  }, [product])
   useEffect(() => {
     if (successProductReview) {
       setRating(0)
@@ -62,6 +68,9 @@ const ProductScreen = ({ history, match }) => {
   }, [dispatch, product._id, match, successProductReview])
 
   const addToCartHandler = () => {
+    ReactPixel.track('AddToCart', {
+      content_name: product?.name,
+    })
     history.push(`/cart/${match.params.id}?qty=${qty}`)
   }
 

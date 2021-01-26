@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react'
 import { Form, Button } from 'react-bootstrap'
+import ReactPixel from 'react-facebook-pixel'
 
 const SearchBox = ({ history }) => {
   const [keyword, setKeyword] = useState('')
@@ -8,6 +9,9 @@ const SearchBox = ({ history }) => {
   const submitHandler = (e) => {
     e.preventDefault()
     if (keyword.trim()) {
+      ReactPixel.trackSingle(process.env.REACT_APP_FB_PIXEL_ID, 'Search', {
+        search_string: `${keyword}`,
+      })
       history.push(`/search/${keyword}`)
     } else {
       history.push('/')

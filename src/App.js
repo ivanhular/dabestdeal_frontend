@@ -1,4 +1,5 @@
-import React, { lazy, Suspense } from 'react'
+import React, { lazy, Suspense, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import { BrowserRouter as Router, Route } from 'react-router-dom'
 import { Container, Image } from 'react-bootstrap'
 // import load from './utils'
@@ -6,6 +7,7 @@ import Loader from './assets/Loader.gif'
 import ScrollToTop from './components/ScrollToTop'
 import Header from './components/Header'
 import HomeScreen from './screens/HomeScreen'
+import ReactPixel from 'react-facebook-pixel'
 const SimpleReactLightbox = lazy(() => import('simple-react-lightbox'))
 
 const load = (Component) => (props) => {
@@ -47,6 +49,28 @@ const HelpScreen = load(lazy(() => import('./screens/HelpScreen')))
 // import TestScreen from './screens/TestScreen'
 
 const App = () => {
+  const userLogin = useSelector((state) => state.userLogin)
+  const { userInfo } = userLogin
+
+  useEffect(() => {
+    let advancedMatching = {}
+    if (userInfo) {
+      let { email: em, phone: ph } = userInfo
+      advancedMatching = { em, ph: ph.replace('0', '63') }
+    }
+
+    const options = {
+      autoConfig: true, // set pixel's autoConfig. More info: https://developers.facebook.com/docs/facebook-pixel/advanced/
+      debug: true, // enable logs
+    }
+    ReactPixel.init(
+      process.env.REACT_APP_FB_PIXEL_ID,
+      advancedMatching,
+      options
+    )
+    ReactPixel.pageView()
+  }, [userInfo])
+
   return (
     <Router>
       <Header />
