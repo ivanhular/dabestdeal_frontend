@@ -745,7 +745,8 @@ footer {
   li {
     list-style-type: none;
     width: 60px !important;
-    height: 60px !important;
+    height: auto !important;
+    margin: 5px !important;
     button {
       &::before {
         display: none;
