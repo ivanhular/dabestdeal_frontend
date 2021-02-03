@@ -21,6 +21,7 @@ import 'slick-carousel/slick/slick.css'
 import 'slick-carousel/slick/slick-theme.css'
 import parse from 'html-react-parser'
 import ReactPixel from 'react-facebook-pixel'
+import ReactGA from 'react-ga'
 // import Swiper from 'react-id-swiper'
 // import 'swiper/swiper.scss'
 
@@ -48,12 +49,21 @@ const ProductScreen = ({ history, match }) => {
   } = productReviewCreate
 
   const images = product?.images.filter((image) => !image.isBannerImage)
+
   useEffect(() => {
-    ReactPixel.track('ViewContent', {
-      content_name: product?.name,
-      content_category: product?.category?.name,
-    })
+    if (Object.keys(product).includes('name')) {
+      ReactPixel.track('ViewContent', {
+        content_name: product?.name,
+        content_category: product?.category?.name,
+      })
+      ReactGA.event({
+        category: 'conversion activity',
+        action: 'product view',
+        label: `${product?.name}`,
+      })
+    }
   }, [product])
+
   useEffect(() => {
     if (successProductReview) {
       setRating(0)

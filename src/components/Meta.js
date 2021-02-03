@@ -12,11 +12,12 @@ const Meta = ({ title, description, keywords }) => {
 }
 
 Meta.defaultProps = {
-  title: 'Welcome To dabestdeal.com',
+  title:
+    'dabestdeal | Ecommerce, retail and Marketing | Buy and Sell on Mobile or Online, Best Marketplace For You',
   description:
     'dabestdeal.com is an ecommerce site and company that sells best and quality products for a great price. We also enables customers to post products and help them market it.',
   keywords:
-    'Couple Accessories, Best Deal Gym Equipments, Space saver Household Supplies, General Merchandise',
+    'Best deal plants, Best deal Couple Accessories, Best Deal Gym Equipments, Space saver Household Supplies, General Merchandise',
 }
 
 export default Meta

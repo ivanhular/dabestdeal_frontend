@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Form, Button, Row, Col } from 'react-bootstrap'
 import FacebookLogin from 'react-facebook-login'
 import ReactPixel from 'react-facebook-pixel'
+import ReactGA from 'react-ga'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
 import CenteredModal from '../components/CenteredModal'
@@ -100,6 +101,11 @@ const LoginScreen = ({ location, history }) => {
     ReactPixel.track('CompleteRegistration', {
       content_name: 'login',
       status: true,
+    })
+    ReactGA.event({
+      category: 'register',
+      action: 'click',
+      label: 'user registration facebook',
     })
     // console.log({
     //   firstName,

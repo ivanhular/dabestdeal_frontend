@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Form, Button, Row, Col } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
 import ReactPixel from 'react-facebook-pixel'
+import ReactGA from 'react-ga'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
 import FormContainer from '../components/FormContainer'
@@ -44,6 +45,12 @@ const RegisterScreen = ({ location, history }) => {
       ReactPixel.track('CompleteRegistration', {
         content_name: 'register',
         status: true,
+      })
+
+      ReactGA.event({
+        category: 'register',
+        action: 'click',
+        label: 'user registration',
       })
     }
   }

@@ -1099,10 +1099,10 @@ const OrderListScreen = ({ history }) => {
                                   <Col xs={1}>
                                     <Image
                                       src={
-                                        product.images.length &&
-                                        product.images.find(
+                                        product?.images.length &&
+                                        product?.images.find(
                                           (image) => image.isFeaturedImage
-                                        ).url
+                                        )?.url
                                       }
                                       fluid
                                       rounded

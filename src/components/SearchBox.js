@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react'
 import { Form, Button } from 'react-bootstrap'
 import ReactPixel from 'react-facebook-pixel'
+import ReactGA from 'react-ga'
 
 const SearchBox = ({ history }) => {
   const [keyword, setKeyword] = useState('')
@@ -11,6 +12,11 @@ const SearchBox = ({ history }) => {
     if (keyword.trim()) {
       ReactPixel.trackSingle(process.env.REACT_APP_FB_PIXEL_ID, 'Search', {
         search_string: `${keyword}`,
+      })
+      ReactGA.event({
+        category: 'conversion activity',
+        action: 'search',
+        label: `${keyword}`,
       })
       history.push(`/search/${keyword}`)
     } else {

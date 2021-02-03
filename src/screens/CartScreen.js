@@ -5,6 +5,7 @@ import { Row, Col, ListGroup, Image, Form, Button, Card } from 'react-bootstrap'
 import Message from '../components/Message'
 import { addToCart, removeFromCart } from '../actions/cartActions'
 import ReactPixel from 'react-facebook-pixel'
+import ReactGA from 'react-ga'
 
 const CartScreen = ({ match, location, history }) => {
   const productId = match.params.id
@@ -31,6 +32,12 @@ const CartScreen = ({ match, location, history }) => {
       num_items: cart?.cartItems?.length,
       currency: 'PHP',
     })
+    ReactGA.event({
+      category: 'conversion activity',
+      action: 'click',
+      label: 'add to cart',
+    })
+
     history.push('/login?redirect=shipping')
   }
 

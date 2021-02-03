@@ -8,6 +8,7 @@ import { createOrder, listMyOrders } from '../actions/orderActions'
 import { ORDER_CREATE_RESET } from '../constants/orderConstants'
 import freeShipping from '../assets/free.png'
 import ReactPixel from 'react-facebook-pixel'
+import ReactGA from 'react-ga'
 
 const PlaceOrderScreen = ({ history }) => {
   const dispatch = useDispatch()
@@ -48,6 +49,11 @@ const PlaceOrderScreen = ({ history }) => {
     ReactPixel.track('InitiateCheckout', {
       currency: 'PHP',
       value: cart?.totalPrice,
+    })
+    ReactGA.event({
+      category: 'conversion activity',
+      action: 'click',
+      label: 'place order',
     })
     dispatch(
       createOrder({
