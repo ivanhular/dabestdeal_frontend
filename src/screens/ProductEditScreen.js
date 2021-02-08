@@ -65,8 +65,8 @@ const ProductEditScreen = ({ match, history }) => {
   const [dataLoaded, setDataLoaded] = useState(false)
 
   useEffect(() => {
-    console.log(description)
-  }, [description])
+    console.log(uploadedImages)
+  }, [uploadedImages])
   useEffect(() => {
     dispatch(listSegments())
     dispatch(listCategories())
@@ -188,19 +188,19 @@ const ProductEditScreen = ({ match, history }) => {
         })
       )
 
-      console.log({
-        _id: productId,
-        name,
-        price,
-        images: uploaded,
-        brand,
-        segment: checkSegment,
-        category: checkCategory,
-        description,
-        countInStock,
-        status,
-        isFeatured,
-      })
+      // console.log({
+      //   _id: productId,
+      //   name,
+      //   price,
+      //   images: uploaded,
+      //   brand,
+      //   segment: checkSegment,
+      //   category: checkCategory,
+      //   description,
+      //   countInStock,
+      //   status,
+      //   isFeatured,
+      // })
     } catch (error) {
       console.log(error.response.message)
     }
@@ -247,6 +247,18 @@ const ProductEditScreen = ({ match, history }) => {
           i === key
             ? { ...x, isBannerImage: !x.isBannerImage }
             : { ...x, isBannerImage: false }
+        )
+      )
+    }
+  }
+  const setIsThumbnailImage = (key, from) => {
+    if (from === 'uploaded') {
+      const uploaded = [...uploadedImages]
+      setUploadedImages(
+        uploaded.map((x, i) =>
+          i === key
+            ? { ...x, isThumbnail: !x.isThumbnail }
+            : { ...x, isThumbnail: false }
         )
       )
     }
@@ -348,6 +360,14 @@ const ProductEditScreen = ({ match, history }) => {
                                 defaultChecked={image.isBannerImage}
                                 onClick={(e) => {
                                   setIsBannerImage(i, 'uploaded')
+                                }}
+                              />
+                              <Form.Check
+                                label='Thumbnail'
+                                value='isThumbnailImage'
+                                defaultChecked={image.isThumbnail}
+                                onClick={(e) => {
+                                  setIsThumbnailImage(i, 'uploaded')
                                 }}
                               />
                             </div>

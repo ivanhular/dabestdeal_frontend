@@ -81,6 +81,11 @@ const ProductScreen = ({ history, match }) => {
     ReactPixel.track('AddToCart', {
       content_name: product?.name,
     })
+    ReactGA.event({
+      category: 'conversion activity',
+      action: 'add to cart',
+      label: `${product?.name}`,
+    })
     history.push(`/cart/${match.params.id}?qty=${qty}`)
   }
 
@@ -173,6 +178,7 @@ const ProductScreen = ({ history, match }) => {
           <Row>
             <Col
               md={6}
+              sm={12}
               style={{ zIndex: '1' }}
               className='product-image-wrapper'
             >
@@ -228,7 +234,7 @@ const ProductScreen = ({ history, match }) => {
                 fluid
               /> */}
             </Col>
-            <Col md={3}>
+            <Col md={3} sm={12}>
               <ListGroup variant='flush'>
                 <ListGroup.Item>
                   <h3>{product.name}</h3>
@@ -251,7 +257,7 @@ const ProductScreen = ({ history, match }) => {
                 </ListGroup.Item>
               </ListGroup>
             </Col>
-            <Col md={3}>
+            <Col md={3} sm={12}>
               <Card>
                 <ListGroup variant='flush'>
                   <ListGroup.Item>
@@ -298,7 +304,7 @@ const ProductScreen = ({ history, match }) => {
                   <ListGroup.Item>
                     <Button
                       onClick={addToCartHandler}
-                      className='btn-block'
+                      className='btn-block shine'
                       type='button'
                       disabled={product.countInStock <= 0}
                     >

@@ -5,15 +5,16 @@ import { Card } from 'react-bootstrap'
 import Rating from './Rating'
 
 const Product = ({ product }) => {
+  const thumbnail = product?.images?.find((image) => image.isThumbnail)?.url
+  const featureImage = product?.images?.find((image) => image.isFeaturedImage)
+    ?.url
   return (
     <Card className='my-3 p-3 rounded product-item'>
       <Link to={`/product/${product._id}`}>
         <div
           className='product__list-image'
           style={{
-            backgroundImage: `url(${
-              product.images.find((image) => image.isFeaturedImage).url
-            })`,
+            backgroundImage: `url(${thumbnail ? thumbnail : featureImage})`,
           }}
         >
           {/* <LazyLoadImage
@@ -29,7 +30,11 @@ const Product = ({ product }) => {
       <Card.Body>
         <Link to={`/product/${product._id}`}>
           <Card.Title as='div'>
-            <strong>{product.name}</strong>
+            <strong>
+              {product.name.length > 30
+                ? `${product.name.substr(0, 30)}...`
+                : product.name}
+            </strong>
           </Card.Title>
         </Link>
 
@@ -40,7 +45,7 @@ const Product = ({ product }) => {
           />
         </Card.Text>
 
-        <Card.Text as='h3'>
+        <Card.Text as='h4'>
           <span>&#8369;</span>
           {product.price.toFixed(2)}
         </Card.Text>

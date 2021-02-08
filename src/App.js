@@ -62,7 +62,7 @@ const App = () => {
 
     const options = {
       autoConfig: true, // set pixel's autoConfig. More info: https://developers.facebook.com/docs/facebook-pixel/advanced/
-      debug: true, // enable logs
+      // debug: true, // enable logs
     }
     ReactGA.initialize(process.env.REACT_APP_GOOGLE_TRACKING_ID)
     ReactGA.pageview(window.location.pathname + window.location.search)

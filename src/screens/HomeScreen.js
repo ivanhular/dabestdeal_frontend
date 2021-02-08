@@ -16,7 +16,7 @@ const Messenger = lazy(() => import('../components/Messenger'))
 // const ProductCarousel = lazy(() => import('../components/ProductCarousel'))
 const Product = lazy(() => import('../components/Product'))
 
-const HomeScreen = ({ match }) => {
+const HomeScreen = ({ match, location }) => {
   const keyword = match.params.keyword
 
   const pageNumber = match.params.pageNumber || 1
@@ -25,10 +25,11 @@ const HomeScreen = ({ match }) => {
 
   const productList = useSelector((state) => state.productList)
   const { error, products, page, pages } = productList
-
+  const onPageView = location?.pathname.includes('page')
   useEffect(() => {
+    // console.log(location?.pathname.includes('page'))
     dispatch(listProducts(keyword, pageNumber))
-  }, [dispatch, keyword, pageNumber])
+  }, [dispatch, keyword, pageNumber, location])
 
   return (
     <>
@@ -36,7 +37,7 @@ const HomeScreen = ({ match }) => {
         <Messenger />
       </Suspense>
       <Meta />
-      {!keyword ? (
+      {!onPageView && !keyword ? (
         <div className='home__carousel'>
           {/* <Suspense fallback={<ProductCarouselPlaceholder />}> */}
           <ProductCarousel />
