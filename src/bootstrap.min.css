@@ -11,7 +11,7 @@
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
  */
 /* @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600&display=swap'); */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 :root {
   --blue: #007bff;
   --indigo: #6610f2;
@@ -99,6 +99,7 @@ h5,
 h6 {
   margin-top: 0;
   margin-bottom: 0.5rem;
+  font-weight: 500;
 }
 p {
   margin-top: 0;
@@ -131,7 +132,7 @@ ul ol {
   margin-bottom: 0;
 }
 dt {
-  font-weight: 700;
+  font-weight: 500;
 }
 dd {
   margin-bottom: 0.5rem;
@@ -340,7 +341,7 @@ h6,
 .h5,
 .h6 {
   margin-bottom: 0.5rem;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.2;
   color: #1a1a1a;
 }
@@ -477,7 +478,7 @@ kbd {
 kbd kbd {
   padding: 0;
   font-size: 100%;
-  font-weight: 700;
+  font-weight: 500;
 }
 pre {
   display: block;
@@ -2590,7 +2591,7 @@ textarea.form-control.is-invalid {
 }
 .btn {
   display: inline-block;
-  font-weight: 600;
+  font-weight: 500;
   color: #55595c;
   text-align: center;
   vertical-align: middle;
@@ -4951,7 +4952,7 @@ input[type='button'].btn-block {
   display: inline-block;
   padding: 0.25em 0.4em;
   font-size: 75%;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1;
   text-align: center;
   white-space: nowrap;
@@ -5132,7 +5133,7 @@ a.badge-dark.focus {
   color: inherit;
 }
 .alert-link {
-  font-weight: 700;
+  font-weight: 500;
 }
 .alert-dismissible {
   padding-right: 3.8125rem;
@@ -5586,7 +5587,7 @@ a.badge-dark.focus {
 .close {
   float: right;
   font-size: 1.3125rem;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 1;
   color: #000;
   text-shadow: 0 1px 0 #fff;
@@ -9615,7 +9616,7 @@ button.bg-dark:focus {
   font-weight: 400;
 }
 .font-weight-bold {
-  font-weight: 700;
+  font-weight: 500;
 }
 .font-weight-bolder {
   font-weight: bolder;
@@ -9799,7 +9800,7 @@ a.text-dark:focus {
 .navbar {
   font-size: 0.765625rem;
   text-transform: uppercase;
-  font-weight: 600;
+  font-weight: 500;
 }
 .navbar-nav .nav-link {
   padding-top: 0.715rem;

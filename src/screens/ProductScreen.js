@@ -48,7 +48,7 @@ const ProductScreen = ({ history, match }) => {
     error: errorProductReview,
   } = productReviewCreate
 
-  const images = product?.images.filter((image) => !image.isBannerImage)
+  const images = product?.images?.filter((image) => !image.isBannerImage)
 
   useEffect(() => {
     if (Object.keys(product).includes('name')) {
@@ -186,7 +186,7 @@ const ProductScreen = ({ history, match }) => {
                 {/* {console.log(
                   product.images.filter((image) => !image.isBannerImage)
                 )} */}
-                {product?.images.length &&
+                {product?.images?.length &&
                   product.images
                     .filter((image) => !image.isBannerImage)
                     .map((image, idx) => (
@@ -197,11 +197,13 @@ const ProductScreen = ({ history, match }) => {
                               alt: product.name,
                               isFluidWidth: true,
                               src: image.url,
+                              // src: `https://dabestdeal.com${image.url}`,
                             },
                             largeImage: {
                               src: image.url,
-                              width: 800,
-                              height: 1000,
+                              // src: `https://dabestdeal.com${image.url}`,
+                              width: 1500,
+                              height: 1600,
                             },
                             lensStyle: { backgroundColor: 'rgba(0,0,0,.6)' },
                             shouldHideHintAfterFirstActivation: false,
@@ -234,7 +236,7 @@ const ProductScreen = ({ history, match }) => {
                 fluid
               /> */}
             </Col>
-            <Col md={3} sm={12}>
+            <Col className='product-description-wrap' md={3} sm={12}>
               <ListGroup variant='flush'>
                 <ListGroup.Item>
                   <h3>{product.name}</h3>
@@ -257,7 +259,7 @@ const ProductScreen = ({ history, match }) => {
                 </ListGroup.Item>
               </ListGroup>
             </Col>
-            <Col md={3} sm={12}>
+            <Col className='product-summary' md={3} sm={12}>
               <Card>
                 <ListGroup variant='flush'>
                   <ListGroup.Item>
@@ -316,12 +318,12 @@ const ProductScreen = ({ history, match }) => {
             </Col>
           </Row>
           <Row>
-            <Col md={6} className='reviews-wrap'>
+            <Col xs={12} sm={12} md={6} className='reviews-wrap'>
               <h2>Reviews</h2>
-              {product.reviews.length === 0 && <Message>No Reviews</Message>}
+              {product?.reviews?.length === 0 && <Message>No Reviews</Message>}
               <SRLWrapper>
                 <ListGroup variant='flush'>
-                  {product.reviews.map(
+                  {product?.reviews?.map(
                     (review) =>
                       review.isReviewed && (
                         <ListGroup.Item key={review._id}>

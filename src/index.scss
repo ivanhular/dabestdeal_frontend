@@ -323,7 +323,7 @@ button.kep-login-facebook.metro {
 }
 
 strong {
-  font-weight: 700;
+  font-weight: 500;
 }
 .product-image {
   // border-radius: 10px;
@@ -681,7 +681,7 @@ footer {
 }
 .footer-col-title {
   text-align: center;
-  font-weight: 700;
+  font-weight: 500;
   color: #333;
 }
 .footer-bottom {
@@ -741,6 +741,11 @@ footer {
 
 .reviews-wrap {
   margin-top: 50px;
+  @include max(991px) {
+    width: 100%;
+    max-width: none;
+    flex: 100%;
+  }
 }
 .slick-dots {
   bottom: 0 !important;
@@ -793,11 +798,40 @@ button.btn.btn-link {
 // Product Single
 .product-image-wrapper {
   // max-height: 500px;
-  img {
-    // visibility: hidden;
+  @include max(991px) {
+    width: 100%;
+    max-width: none;
+    flex: 100%;
+    margin-bottom: 20px;
   }
 }
-
+.product-description-wrap {
+  @include max(1200px) {
+    width: 100%;
+    max-width: none;
+    flex: 100%;
+    order: 3;
+  }
+  @include max(991px) {
+    width: 100%;
+    max-width: none;
+    flex: 100%;
+    margin-bottom: 20px;
+  }
+}
+.product-summary {
+  @include max(1200px) {
+    order: 2;
+    max-width: none;
+    flex: 40%;
+  }
+  @include max(991px) {
+    width: 100%;
+    max-width: none;
+    flex: 100%;
+    margin-bottom: 20px;
+  }
+}
 .loader {
   position: fixed;
   top: 0;
