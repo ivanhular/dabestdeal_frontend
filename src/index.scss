@@ -53,6 +53,7 @@ h2 {
 
 .carousel-caption h2 {
   color: #fff;
+  text-transform: capitalize;
   @include max(500px) {
     font-size: 12px;
   }
@@ -258,6 +259,12 @@ button.kep-login-facebook.metro {
   }
   &.new {
     color: red;
+  }
+}
+
+.order-summary {
+  @include max(991px) {
+    margin-top: 20px;
   }
 }
 

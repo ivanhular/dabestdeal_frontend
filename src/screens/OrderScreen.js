@@ -4,7 +4,7 @@ import axios from 'axios'
 import moment from 'moment'
 import { PayPalButton } from 'react-paypal-button-v2'
 import { Link } from 'react-router-dom'
-import { Row, Col, ListGroup, Image, Card, Button } from 'react-bootstrap'
+import { Row, Col, ListGroup, Image, Button } from 'react-bootstrap'
 import Message from '../components/Message'
 import Loader from '../components/Loader'
 
@@ -177,33 +177,33 @@ const OrderScreen = ({ match, history }) => {
             </ListGroup.Item>
           </ListGroup>
         </Col>
-        <Col md={4}>
-          <Card>
-            <ListGroup variant='flush'>
-              <ListGroup.Item>
-                <h2>Order Summary</h2>
-              </ListGroup.Item>
-              <ListGroup.Item>
-                <Row>
-                  <Col>Items</Col>
-                  <Col>
-                    <span>&#8369;</span>
-                    {order.itemsPrice}
-                  </Col>
-                </Row>
-              </ListGroup.Item>
-              <ListGroup.Item>
-                <Row>
-                  <Col>Shipping</Col>
-                  <Col>
-                    {order.shippingPrice > 0 && <span>&#8369;</span>}
-                    {order.shippingPrice === 0
-                      ? 'Free'
-                      : order.shippingPrice.toFixed(2)}
-                  </Col>
-                </Row>
-              </ListGroup.Item>
-              {/* <ListGroup.Item>
+        <Col md={4} className='order-summary'>
+          {/* <Card> */}
+          <ListGroup variant='flush'>
+            <ListGroup.Item>
+              <h2>Order Summary</h2>
+            </ListGroup.Item>
+            <ListGroup.Item>
+              <Row>
+                <Col>Items</Col>
+                <Col>
+                  <span>&#8369;</span>
+                  {order.itemsPrice}
+                </Col>
+              </Row>
+            </ListGroup.Item>
+            <ListGroup.Item>
+              <Row>
+                <Col>Shipping</Col>
+                <Col>
+                  {order.shippingPrice > 0 && <span>&#8369;</span>}
+                  {order.shippingPrice === 0
+                    ? 'Free'
+                    : order.shippingPrice.toFixed(2)}
+                </Col>
+              </Row>
+            </ListGroup.Item>
+            {/* <ListGroup.Item>
                 <Row>
                   <Col>Tax</Col>
                   <Col>
@@ -212,56 +212,57 @@ const OrderScreen = ({ match, history }) => {
                   </Col>
                 </Row>
               </ListGroup.Item> */}
+            <ListGroup.Item>
+              <Row>
+                <Col>
+                  <strong>Total</strong>
+                </Col>
+                <Col>
+                  <span>&#8369;</span>
+                  <strong>{order.totalPrice.toFixed(2)}</strong>
+                </Col>
+              </Row>
+            </ListGroup.Item>
+            {!order.isPaid && order.paymentMethod.toLowerCase() === 'paypal' && (
               <ListGroup.Item>
-                <Row>
-                  <Col>Total</Col>
-                  <Col>
-                    <span>&#8369;</span>
-                    {order.totalPrice.toFixed(2)}
-                  </Col>
-                </Row>
+                {loadingPay && <Loader />}
+                {!sdkReady ? (
+                  <Loader />
+                ) : (
+                  <PayPalButton
+                    amount={order.totalPrice}
+                    options={{
+                      currency: 'PHP',
+                    }}
+                    onSuccess={successPaymentHandler}
+                  />
+                )}
               </ListGroup.Item>
-              {!order.isPaid && order.paymentMethod.toLowerCase() === 'paypal' && (
-                <ListGroup.Item>
-                  {loadingPay && <Loader />}
-                  {!sdkReady ? (
-                    <Loader />
-                  ) : (
-                    <PayPalButton
-                      amount={order.totalPrice}
-                      options={{
-                        currency: 'PHP',
-                      }}
-                      onSuccess={successPaymentHandler}
-                    />
-                  )}
-                </ListGroup.Item>
-              )}
-              {loadingDeliver && <Loader />}
-              {userInfo && userInfo.isAdmin && !order.isDelivered && (
-                <ListGroup.Item>
-                  <Button
-                    type='button'
-                    className='btn btn-block'
-                    onClick={deliverHandler}
-                  >
-                    Mark As Delivered
-                  </Button>
-                </ListGroup.Item>
-              )}
-            </ListGroup>
-          </Card>
-          {order.orderStatus === 'pending' &&
+            )}
+            {loadingDeliver && <Loader />}
+            {userInfo && userInfo.isAdmin && !order.isDelivered && (
+              <ListGroup.Item>
+                <Button
+                  type='button'
+                  className='btn btn-block'
+                  onClick={deliverHandler}
+                >
+                  Mark As Delivered
+                </Button>
+              </ListGroup.Item>
+            )}
+          </ListGroup>
+          {/* </Card> */}
+          {order?.orderStatus?.toLowerCase() === 'pending' &&
             userInfo?.role?.toLowerCase() === 'client' && (
-              <Card className='order-success__wrapper'>
-                <Card.Body>
-                  {' '}
-                  <Message variant='success'>
-                    Thank you for ordering! <br /> Our agent will contact you
-                    soon!
-                  </Message>
-                </Card.Body>
-              </Card>
+              <div className='order-success__wrapper'>
+                {/* <Card.Body> */}{' '}
+                <Message variant='success'>
+                  Thank you for ordering! <br /> Our agent will contact you
+                  soon!
+                </Message>
+                {/* </Card.Body> */}
+              </div>
             )}
         </Col>
       </Row>
