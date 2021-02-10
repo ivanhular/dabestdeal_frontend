@@ -46,6 +46,9 @@ const RegisterScreen = ({ location, history }) => {
         content_name: 'register',
         status: true,
       })
+      ReactPixel.track('Lead', {
+        content_name: 'login',
+      })
 
       ReactGA.event({
         category: 'register',

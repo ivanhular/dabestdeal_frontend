@@ -46,7 +46,7 @@ const PlaceOrderScreen = ({ history }) => {
   }, [history, success])
 
   const placeOrderHandler = () => {
-    ReactPixel.track('InitiateCheckout', {
+    ReactPixel.track('Purchase', {
       currency: 'PHP',
       value: cart?.totalPrice,
     })

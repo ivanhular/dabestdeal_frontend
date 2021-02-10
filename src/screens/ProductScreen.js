@@ -48,7 +48,9 @@ const ProductScreen = ({ history, match }) => {
     error: errorProductReview,
   } = productReviewCreate
 
-  const images = product?.images?.filter((image) => !image.isBannerImage)
+  const images = product?.images?.filter(
+    (image) => !image.isBannerImage && !image.isThumbnail
+  )
 
   useEffect(() => {
     if (Object.keys(product).includes('name')) {
@@ -135,7 +137,7 @@ const ProductScreen = ({ history, match }) => {
             height: '100%',
           }}
         >
-          <Image src={images[i].url} fluid />
+          <Image src={images[i]?.url} fluid />
         </Button>
       )
     },
@@ -188,7 +190,9 @@ const ProductScreen = ({ history, match }) => {
                 )} */}
                 {product?.images?.length &&
                   product.images
-                    .filter((image) => !image.isBannerImage)
+                    .filter(
+                      (image) => !image.isBannerImage && !image.isThumbnail
+                    )
                     .map((image, idx) => (
                       <div key={`slide_${idx}`}>
                         <ReactImageMagnify
@@ -196,12 +200,12 @@ const ProductScreen = ({ history, match }) => {
                             smallImage: {
                               alt: product.name,
                               isFluidWidth: true,
-                              src: image.url,
-                              // src: `https://dabestdeal.com${image.url}`,
+                              // src: image.url,
+                              src: `https://dabestdeal.com${image.url}`,
                             },
                             largeImage: {
-                              src: image.url,
-                              // src: `https://dabestdeal.com${image.url}`,
+                              // src: image.url,
+                              src: `https://dabestdeal.com${image.url}`,
                               width: 1500,
                               height: 1600,
                             },

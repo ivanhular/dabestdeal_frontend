@@ -102,6 +102,7 @@ const LoginScreen = ({ location, history }) => {
       content_name: 'login',
       status: true,
     })
+
     ReactGA.event({
       category: 'register',
       action: 'click',
