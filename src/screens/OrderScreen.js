@@ -217,7 +217,7 @@ const OrderScreen = ({ match, history }) => {
                   <Col>Total</Col>
                   <Col>
                     <span>&#8369;</span>
-                    {order.totalPrice}
+                    {order.totalPrice.toFixed(2)}
                   </Col>
                 </Row>
               </ListGroup.Item>
@@ -252,7 +252,7 @@ const OrderScreen = ({ match, history }) => {
             </ListGroup>
           </Card>
           {order.orderStatus === 'pending' &&
-            userInfo.role.toLowerCase() === 'client' && (
+            userInfo?.role?.toLowerCase() === 'client' && (
               <Card className='order-success__wrapper'>
                 <Card.Body>
                   {' '}

@@ -42,13 +42,12 @@ const RegisterScreen = ({ location, history }) => {
       dispatch(
         register({ firstName, middleName, lastName, phone, email, password })
       )
-      ReactPixel.track('CompleteRegistration', {
-        content_name: 'register',
-        status: true,
-      })
-      ReactPixel.track('Lead', {
-        content_name: 'login',
-      })
+      // ReactPixel.track('CompleteRegistration', {
+      //   content_name: 'register',
+      //   status: true,
+      // })
+      ReactPixel.track('CompleteRegistration', {})
+      ReactPixel.track('Lead', {})
 
       ReactGA.event({
         category: 'register',

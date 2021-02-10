@@ -98,10 +98,14 @@ const LoginScreen = ({ location, history }) => {
         facebookID,
       })
     )
-    ReactPixel.track('CompleteRegistration', {
-      content_name: 'login',
-      status: true,
-    })
+    // ReactPixel.track('CompleteRegistration', {
+    //   content_name: 'login',
+    //   status: true,
+    // })
+
+    ReactPixel.track('CompleteRegistration', {})
+
+    ReactPixel.track('Lead', {})
 
     ReactGA.event({
       category: 'register',
