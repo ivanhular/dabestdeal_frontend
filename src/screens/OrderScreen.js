@@ -187,12 +187,13 @@ const OrderScreen = ({ match, history }) => {
               <Row>
                 <Col>Items</Col>
                 <Col>
-                  <span>&#8369;</span>
-                  {order.itemsPrice}
+                  {/* <span>&#8369;</span>
+                  {order.itemsPrice} */}
+                  {order.orderItems.reduce((acc, item) => item.qty + acc, 0)}
                 </Col>
               </Row>
             </ListGroup.Item>
-            <ListGroup.Item>
+            {/* <ListGroup.Item>
               <Row>
                 <Col>Shipping</Col>
                 <Col>
@@ -202,7 +203,7 @@ const OrderScreen = ({ match, history }) => {
                     : order.shippingPrice.toFixed(2)}
                 </Col>
               </Row>
-            </ListGroup.Item>
+            </ListGroup.Item> */}
             {/* <ListGroup.Item>
                 <Row>
                   <Col>Tax</Col>

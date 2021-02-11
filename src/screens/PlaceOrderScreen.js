@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
 import { Button, Row, Col, ListGroup, Image, Card } from 'react-bootstrap'
 import { useDispatch, useSelector } from 'react-redux'
@@ -10,6 +10,7 @@ import freeShipping from '../assets/free.png'
 import ReactPixel from 'react-facebook-pixel'
 import ReactGA from 'react-ga'
 
+const Messenger = lazy(() => import('../components/Messenger'))
 const PlaceOrderScreen = ({ history }) => {
   const dispatch = useDispatch()
 
@@ -92,6 +93,9 @@ const PlaceOrderScreen = ({ history }) => {
 
   return (
     <>
+      <Suspense fallback={null}>
+        <Messenger />
+      </Suspense>
       <CheckoutSteps step1 step2 step3 step4 />
       <Row>
         <Col md={8}>
@@ -157,22 +161,24 @@ const PlaceOrderScreen = ({ history }) => {
                 <Row>
                   <Col>Items</Col>
                   <Col>
-                    <span>&#8369;</span>
-                    {cart.itemsPrice}
+                    {/* <span>&#8369;</span> */}
+                    {/* {cart.itemsPrice}
+                     */}
+                    {cart.cartItems.reduce((acc, item) => item.qty + acc, 0)}
                   </Col>
                 </Row>
               </ListGroup.Item>
-              <ListGroup.Item>
+              {/* <ListGroup.Item>
                 <Row>
                   <Col>Shipping</Col>
-                  <Col>
-                    <Image src={freeShipping} style={{ maxWidth: '50px' }} />
-                    {/* {cart.shippingPrice}
+                  <Col> */}
+              {/* <Image src={freeShipping} style={{ maxWidth: '50px' }} /> */}
+              {/* {cart.shippingPrice}
                     {cart.shippingPrice > 0 && <span>&#8369;</span>}
                     {cart.shippingPrice === 0.0 && 'Free'} */}
-                  </Col>
+              {/* </Col>
                 </Row>
-              </ListGroup.Item>
+              </ListGroup.Item> */}
               {/* <ListGroup.Item>
                 <Row>
                   <Col>Tax</Col>
