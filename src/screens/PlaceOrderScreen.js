@@ -6,7 +6,7 @@ import Message from '../components/Message'
 import CheckoutSteps from '../components/CheckoutSteps'
 import { createOrder, listMyOrders } from '../actions/orderActions'
 import { ORDER_CREATE_RESET } from '../constants/orderConstants'
-import freeShipping from '../assets/free.png'
+// import freeShipping from '../assets/free.png'
 import ReactPixel from 'react-facebook-pixel'
 import ReactGA from 'react-ga'
 

@@ -60,18 +60,24 @@ const App = () => {
       advancedMatching = { em, ph: ph.replace('0', '63') }
     }
 
-    const options = {
-      autoConfig: true, // set pixel's autoConfig. More info: https://developers.facebook.com/docs/facebook-pixel/advanced/
-      // debug: true, // enable logs
-    }
     ReactGA.initialize(process.env.REACT_APP_GOOGLE_TRACKING_ID)
     ReactGA.pageview(window.location.pathname + window.location.search)
-    ReactPixel.init(
-      process.env.REACT_APP_FB_PIXEL_ID,
-      advancedMatching,
-      options
-    )
-    ReactPixel.pageView()
+
+    const options = {
+      autoConfig: true, // set pixel's autoConfig. More info: https://developers.facebook.com/docs/facebook-pixel/advanced/
+      debug: true, // enable logs
+    }
+    if (
+      window.location.pathname !== '/' &&
+      !window.location.pathname.includes('/search')
+    ) {
+      ReactPixel.init(
+        process.env.REACT_APP_FB_PIXEL_ID,
+        advancedMatching,
+        options
+      )
+      ReactPixel.pageView()
+    }
   }, [userInfo])
 
   return (

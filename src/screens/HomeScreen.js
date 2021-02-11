@@ -1,4 +1,4 @@
-import React, { useEffect, lazy, Suspense } from 'react'
+import React, { useEffect, useState, lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { Row, Col } from 'react-bootstrap'
@@ -11,6 +11,8 @@ import ProductCarousel from '../components/ProductCarousel'
 import ProductPlaceholder from '../components/ProductPlaceholder'
 import Meta from '../components/Meta'
 import { listProducts } from '../actions/productActions'
+import ReactPixel from 'react-facebook-pixel'
+import ReactGA from 'react-ga'
 
 const Messenger = lazy(() => import('../components/Messenger'))
 // const ProductCarousel = lazy(() => import('../components/ProductCarousel'))
@@ -21,15 +23,57 @@ const HomeScreen = ({ match, location }) => {
 
   const pageNumber = match.params.pageNumber || 1
 
+  const userLogin = useSelector((state) => state.userLogin)
+  const { userInfo } = userLogin
+
   const dispatch = useDispatch()
 
   const productList = useSelector((state) => state.productList)
+
   const { error, products, page, pages } = productList
+
+  const [isTrackingLoaded, setTrackingLoaded] = useState(false)
+
   const onPageView = location?.pathname.includes('page')
+
+  useEffect(() => {
+    let advancedMatching = {}
+    if (userInfo) {
+      let { email: em, phone: ph } = userInfo
+      advancedMatching = { em, ph: ph.replace('0', '63') }
+    }
+
+    if (!isTrackingLoaded) {
+      // ReactPixel.track('Search', {
+      //   search_string: `${keyword}`,
+      // })
+      ReactGA.initialize(process.env.REACT_APP_GOOGLE_TRACKING_ID)
+      ReactGA.pageview(window.location.pathname + window.location.search)
+
+      const options = {
+        autoConfig: true, // set pixel's autoConfig. More info: https://developers.facebook.com/docs/facebook-pixel/advanced/
+        debug: true, // enable logs
+      }
+      ReactPixel.init(
+        process.env.REACT_APP_FB_PIXEL_ID,
+        advancedMatching,
+        options
+      )
+      ReactPixel.pageView()
+
+      if (keyword) {
+        ReactPixel.trackSingle(process.env.REACT_APP_FB_PIXEL_ID, 'Search', {
+          search_string: `${keyword}`,
+        })
+      }
+      setTrackingLoaded(true)
+    }
+  }, [userInfo, isTrackingLoaded, keyword])
+
   useEffect(() => {
     // console.log(location?.pathname.includes('page'))
     dispatch(listProducts(keyword, pageNumber))
-  }, [dispatch, keyword, pageNumber, location])
+  }, [dispatch, keyword, isTrackingLoaded, pageNumber, location])
 
   return (
     <>

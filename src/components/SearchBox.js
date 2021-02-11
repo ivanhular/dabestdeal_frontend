@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
 import { Form, Button } from 'react-bootstrap'
-import ReactPixel from 'react-facebook-pixel'
+// import ReactPixel from 'react-facebook-pixel'
 import ReactGA from 'react-ga'
 
 const SearchBox = ({ history }) => {
@@ -10,9 +10,9 @@ const SearchBox = ({ history }) => {
   const submitHandler = (e) => {
     e.preventDefault()
     if (keyword.trim()) {
-      ReactPixel.trackSingle(process.env.REACT_APP_FB_PIXEL_ID, 'Search', {
-        search_string: `${keyword}`,
-      })
+      // ReactPixel.trackSingle(process.env.REACT_APP_FB_PIXEL_ID, 'Search', {
+      //   search_string: `${keyword}`,
+      // })
       ReactGA.event({
         category: 'conversion activity',
         action: 'search',
